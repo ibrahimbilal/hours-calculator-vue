@@ -99,6 +99,32 @@ function isLikelyHeaderRow(cells: string[]): boolean {
   return !DATE_RE.test(first)
 }
 
+const PAY_HEADER_NAMES = new Set(['pay', 'loon', 'الأجر', 'betaald', 'paid'])
+
+function payColumnIndex(headers: string[] | undefined, cellCount: number): number {
+  if (headers?.length) {
+    const idx = headers.findIndex((h) => PAY_HEADER_NAMES.has(h.trim().toLowerCase()))
+    if (idx >= 0) return idx
+  }
+  if (cellCount >= 5) return 4
+  return -1
+}
+
+function parseAmountField(raw: string): number | undefined {
+  const trimmed = raw.trim()
+  if (!trimmed) return undefined
+  const normalized = trimmed.replace(/[^\d.,-]/g, '').replace(',', '.')
+  const value = Number.parseFloat(normalized)
+  return Number.isFinite(value) ? value : undefined
+}
+
+/** Total pay from CSV → hourly rate stored on each row. */
+function hourlyRateFromPay(payTotal: number, start: string, end: string): number | undefined {
+  const hours = hoursDecimal({ start, end })
+  if (hours <= 0) return undefined
+  return payTotal / hours
+}
+
 export type CsvImportResult = {
   entries: AddRowPayload[]
   errors: string[]
@@ -119,7 +145,9 @@ export function entriesFromCsv(
 
   let startIndex = 0
   let skippedHeader = false
+  let headerCells: string[] | undefined
   if (isLikelyHeaderRow(records[0]!)) {
+    headerCells = records[0]
     startIndex = 1
     skippedHeader = true
   }
@@ -138,7 +166,13 @@ export function entriesFromCsv(
       continue
     }
 
-    entries.push({ date, start, end })
+    const payIdx = payColumnIndex(headerCells, cells.length)
+    const payRaw = payIdx >= 0 ? cells[payIdx] : undefined
+    const payTotal = payRaw !== undefined ? parseAmountField(payRaw) : undefined
+    const price =
+      payTotal !== undefined ? hourlyRateFromPay(payTotal, start, end) : undefined
+
+    entries.push({ date, start, end, ...(price !== undefined ? { price } : {}) })
   }
 
   return { entries, errors, skippedHeader }

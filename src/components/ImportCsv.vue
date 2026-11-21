@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { FileUp, Upload } from '@lucide/vue'
 import { useCalculatorStore } from '../stores/calculator'
+import { hoursDecimal, formatCurrency } from '../composables/useTimeCalc'
 import { entriesFromCsv } from '../utils/csv'
 import { DEMO_CSV_CONTENT, DEMO_ENTRIES, DEMO_HOURLY_RATE } from '../data/demoEntries'
 
@@ -24,6 +25,9 @@ const statusDetail = ref('')
 const previewRows = computed(() => preview.value?.entries.slice(0, 8) ?? [])
 const rowCount = computed(() => preview.value?.entries.length ?? 0)
 const parseErrors = computed(() => preview.value?.errors ?? [])
+const previewHasPay = computed(() =>
+  preview.value?.entries.some((row) => typeof row.price === 'number') ?? false,
+)
 
 let dragDepth = 0
 
@@ -205,6 +209,8 @@ function loadDemoIntoTracker() {
               <th class="px-3 py-2 text-start">{{ t('csv.date') }}</th>
               <th class="px-3 py-2 text-start">{{ t('csv.start') }}</th>
               <th class="px-3 py-2 text-start">{{ t('csv.end') }}</th>
+              <th v-if="previewHasPay" class="px-3 py-2 text-start">{{ t('csv.duration') }}</th>
+              <th v-if="previewHasPay" class="px-3 py-2 text-start">{{ t('csv.pay') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -212,6 +218,20 @@ function loadDemoIntoTracker() {
               <td class="px-3 py-2">{{ row.date }}</td>
               <td class="px-3 py-2">{{ row.start }}</td>
               <td class="px-3 py-2">{{ row.end }}</td>
+              <template v-if="previewHasPay">
+                <td class="px-3 py-2">
+                  <template v-if="typeof row.price === 'number'">
+                    {{ hoursDecimal(row).toFixed(2) }}
+                  </template>
+                  <template v-else>—</template>
+                </td>
+                <td class="px-3 py-2">
+                  <template v-if="typeof row.price === 'number'">
+                    {{ formatCurrency(hoursDecimal(row) * row.price) }}
+                  </template>
+                  <template v-else>—</template>
+                </td>
+              </template>
             </tr>
           </tbody>
         </table>
