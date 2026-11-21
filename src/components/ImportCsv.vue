@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { FileUp, Upload } from '@lucide/vue'
+import { FileDown, FileUp, Upload } from '@lucide/vue'
 import { useCalculatorStore } from '../stores/calculator'
 import { hoursDecimal, formatCurrency } from '../composables/useTimeCalc'
-import { entriesFromCsv } from '../utils/csv'
+import { buildExportCsv, entriesFromCsv } from '../utils/csv'
 import { DEMO_CSV_CONTENT, DEMO_ENTRIES, DEMO_HOURLY_RATE } from '../data/demoEntries'
 
 const emit = defineEmits<{ imported: [] }>()
@@ -112,6 +112,24 @@ function loadDemoIntoTracker() {
   statusDetail.value = t('import.demoLoaded', { n: count, rate: DEMO_HOURLY_RATE })
   emit('imported')
 }
+
+function exportCsv() {
+  const csv = buildExportCsv(store.rows, store.hourlyRate, [
+    t('csv.date'),
+    t('csv.start'),
+    t('csv.end'),
+    t('csv.duration'),
+    t('csv.pay'),
+  ])
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  const date = new Date().toISOString().slice(0, 10)
+  a.href = url
+  a.download = `hours-${date}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
 </script>
 
 <template>
@@ -121,6 +139,19 @@ function loadDemoIntoTracker() {
       <p class="text-sm text-muted">{{ t('import.description') }}</p>
       <p class="mt-2 text-xs text-muted">{{ t('import.formatHint') }}</p>
     </div>
+
+    <section class="rounded-xl border border-inputb bg-input/40 p-4">
+      <h3 class="mb-1 text-sm font-semibold text-textc">{{ t('import.exportSection') }}</h3>
+      <p class="mb-3 text-xs text-muted">{{ t('import.exportHint') }}</p>
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 rounded-lg border border-yellow-400 bg-yellow-400 px-4 py-2 text-sm font-semibold text-yellow-950 transition hover:opacity-90"
+        @click="exportCsv"
+      >
+        <FileDown class="h-4 w-4" :stroke-width="2" aria-hidden="true" />
+        {{ t('import.exportCsv') }}
+      </button>
+    </section>
 
     <div class="flex flex-wrap gap-2">
       <a

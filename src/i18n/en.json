@@ -2,7 +2,7 @@
   "nav": {
     "tracker": "Time Tracker",
     "stats": "Statistics",
-    "import": "Import CSV"
+    "import": "Import & export"
   },
   "stats": {
     "groupBy": "Group by",
@@ -45,12 +45,32 @@
     "hourlyRateHint": "Applied to all durations to calculate total pay. Leave as zero if not needed.",
     "total": "Total",
     "totalPay": "Total pay",
-    "autoSave": "Auto-saved in browser (LocalStorage).",
-    "showDetails": "Rate & actions",
-    "hideDetails": "Hide details"
+    "showPayAmount": "Show total pay",
+    "hidePayAmount": "Hide total pay",
+    "autoSaveLocal": "Saved on this device. Sign in to sync across devices.",
+    "autoSaveCloud": "Synced to your account (Firebase).",
+    "autoSaveCloudSaving": "Saving to the cloud…",
+    "autoSaveCloudError": "Could not save to the cloud. Will retry when you edit entries."
+  },
+  "homeScope": {
+    "label": "Home view",
+    "currentMonth": "This month",
+    "all": "All dates",
+    "summaryCurrentMonth": "Totals for this month only",
+    "emptyCurrentMonth": "No entries this month yet.",
+    "switchToAllHint": "Use the menu above and choose “All dates” to see older entries."
+  },
+  "settings": {
+    "title": "Settings",
+    "back": "Back",
+    "account": "Account",
+    "signedInWithGoogle": "Signed in with Google",
+    "signedInWithEmail": "Signed in with email",
+    "nameFromGoogle": "Filled from your Google account. You can edit it here if needed.",
+    "workDefaults": "Defaults",
+    "data": "Your data"
   },
   "actions": {
-    "exportCSV": "Export CSV",
     "clearAll": "Clear all",
     "addEntry": "Add entry",
     "delete": "Delete",
@@ -101,9 +121,62 @@
     "duration": "Duration (h)",
     "pay": "Pay"
   },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "signOut": "Sign out",
+    "signedIn": "Signed in",
+    "loading": "Checking your session…",
+    "pageTitle": "Sign in to continue",
+    "pageSubtitle": "Your time entries are stored securely in your account.",
+    "signInRequired": "Sign in is required to view and edit your hours.",
+    "signOutConfirm": "Sign out? Your data will be hidden on this device until you sign in again.",
+    "dialogTitle": "Cloud backup",
+    "dialogHint": "Sign in to restore your hours on another device or after clearing the browser.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "google": "Continue with Google",
+    "passwordStrength": {
+      "label": "Password strength",
+      "weak": "Weak",
+      "fair": "Fair",
+      "good": "Good",
+      "strong": "Strong"
+    },
+    "passwordRules": {
+      "title": "Password requirements",
+      "minLength": "At least 8 characters",
+      "lower": "One lowercase letter",
+      "upper": "One uppercase letter",
+      "number": "One number",
+      "special": "One special character (!@#$…)"
+    },
+    "errors": {
+      "default": "Sign-in failed. Check your details and try again.",
+      "weakPassword": "Use at least 6 characters for the password.",
+      "passwordRules": "Meet all password requirements below.",
+      "firstNameRequired": "Enter your first name.",
+      "auth/invalid-email": "Invalid email address.",
+      "auth/user-disabled": "This account has been disabled.",
+      "auth/user-not-found": "No account found with this email.",
+      "auth/wrong-password": "Incorrect password.",
+      "auth/invalid-credential": "Incorrect email or password.",
+      "auth/email-already-in-use": "This email is already registered.",
+      "auth/too-many-requests": "Too many attempts. Try again later.",
+      "auth/popup-closed-by-user": "Sign-in window was closed.",
+      "auth/popup-blocked": "Pop-up was blocked. Allow pop-ups and try again."
+    }
+  },
   "import": {
-    "title": "Import CSV",
-    "description": "Upload a CSV file with your time entries. Use the same columns as export: date, start, end (duration and pay are optional).",
+    "title": "Import & export",
+    "exportSection": "Export",
+    "exportCsv": "Download hours as CSV",
+    "exportHint": "Save your current entries to a spreadsheet file.",
+    "description": "Upload a CSV file with your time entries. Use the same columns as download: date, start, end (duration and pay are optional).",
     "formatHint": "Date format: YYYY-MM-DD. Times: HH:MM (24h). Overnight shifts are supported.",
     "chooseFile": "Choose CSV file",
     "dropOrClick": "Drag & drop a CSV file here, or tap to browse",

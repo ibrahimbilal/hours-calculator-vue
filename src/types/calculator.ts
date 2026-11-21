@@ -16,9 +16,14 @@ export interface AddRowPayload {
   price?: number
 }
 
+import type { HomeDateScope } from '../utils/dateScope'
+
 export interface PersistedData {
   rows?: Array<Partial<TimeEntry> & { id?: string }>
   hourlyRate?: number
+  homeDateScope?: HomeDateScope
+  firstName?: string
+  lastName?: string
 }
 
 export type LocaleCode = 'ar' | 'en' | 'nl'

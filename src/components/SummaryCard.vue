@@ -1,22 +1,52 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ChevronDown, Eraser, FileDown } from '@lucide/vue'
+import { Eye, EyeOff } from '@lucide/vue'
 import { useCalculatorStore } from '../stores/calculator'
 import { durationMinutes, hoursDecimal, useTimeCalc } from '../composables/useTimeCalc'
 
-defineEmits(['exportCSV', 'clearAll'])
+const PAY_VISIBLE_KEY = 'hours-calc-pay-visible'
 
 const { t } = useI18n()
 const { formatHM, currency } = useTimeCalc()
 const store = useCalculatorStore()
 
-const showDetails = ref(false)
+const showPay = ref(false)
 
-const totalMinutes = computed(() => store.rows.reduce((sum, row) => sum + durationMinutes(row), 0))
-const totalPay = computed(() =>
-  store.rows.reduce((sum, row) => sum + hoursDecimal(row) * (row.price ?? store.hourlyRate), 0),
+onMounted(() => {
+  try {
+    const stored = localStorage.getItem(PAY_VISIBLE_KEY)
+    if (stored === '1') showPay.value = true
+  } catch {
+    /* ignore */
+  }
+})
+
+watch(showPay, (visible) => {
+  try {
+    localStorage.setItem(PAY_VISIBLE_KEY, visible ? '1' : '0')
+  } catch {
+    /* ignore */
+  }
+})
+
+const totalMinutes = computed(() =>
+  store.homeDisplayRows.reduce((sum, row) => sum + durationMinutes(row), 0),
 )
+const totalPay = computed(() =>
+  store.homeDisplayRows.reduce(
+    (sum, row) => sum + hoursDecimal(row) * (row.price ?? store.hourlyRate),
+    0,
+  ),
+)
+
+const scopeHint = computed(() =>
+  store.homeDateScope === 'currentMonth' ? t('homeScope.summaryCurrentMonth') : null,
+)
+
+function togglePayVisible() {
+  showPay.value = !showPay.value
+}
 </script>
 
 <template>
@@ -37,62 +67,29 @@ const totalPay = computed(() =>
       </div>
       <div class="w-px shrink-0 bg-inputb" aria-hidden="true" />
       <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span class="text-[0.6875rem] font-semibold uppercase tracking-wider text-muted">
-          {{ t('summary.totalPay') }}
+        <div class="flex items-center justify-between gap-1">
+          <span class="text-[0.6875rem] font-semibold uppercase tracking-wider text-muted">
+            {{ t('summary.totalPay') }}
+          </span>
+          <button
+            type="button"
+            class="flex shrink-0 items-center justify-center rounded-lg border-0 bg-transparent p-1 text-muted transition-colors hover:text-accent"
+            :aria-label="showPay ? t('summary.hidePayAmount') : t('summary.showPayAmount')"
+            :aria-pressed="showPay"
+            @click="togglePayVisible"
+          >
+            <Eye v-if="showPay" class="h-4 w-4" :stroke-width="2" aria-hidden="true" />
+            <EyeOff v-else class="h-4 w-4" :stroke-width="2" aria-hidden="true" />
+          </button>
+        </div>
+        <span
+          class="text-[1.35rem] font-bold leading-tight"
+          :class="showPay ? 'text-accent' : 'tracking-widest text-muted'"
+        >
+          {{ showPay ? currency(totalPay) : '••••' }}
         </span>
-        <span class="text-[1.35rem] font-bold leading-tight text-accent">{{ currency(totalPay) }}</span>
       </div>
     </div>
-
-    <button
-      type="button"
-      class="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl border-0 bg-input px-2 py-2 text-[0.8125rem] font-semibold text-textc"
-      :aria-expanded="showDetails"
-      @click="showDetails = !showDetails"
-    >
-      <span>{{ showDetails ? t('summary.hideDetails') : t('summary.showDetails') }}</span>
-      <ChevronDown
-        class="h-4 w-4 transition-transform"
-        :class="{ 'rotate-180': showDetails }"
-        :stroke-width="2"
-        aria-hidden="true"
-      />
-    </button>
-
-    <div v-show="showDetails" class="mt-4 border-t border-inputb pt-4">
-      <label class="mb-2 block text-xs text-muted">{{ t('summary.hourlyRate') }}</label>
-      <input
-        type="number"
-        step="0.01"
-        min="0"
-        :value="store.hourlyRate"
-        placeholder="0"
-        class="w-full rounded-xl border border-inputb bg-input px-3 py-2.5 outline-none focus:ring-2 focus:ring-accent/35"
-        @input="
-          store.hourlyRate = parseFloat(($event.target as HTMLInputElement).value) || 0
-        "
-      />
-      <p class="mt-2 text-[0.6875rem] text-muted">{{ t('summary.hourlyRateHint') }}</p>
-
-      <div class="mt-4 flex flex-wrap gap-2">
-        <button
-          type="button"
-          class="flex min-w-[7rem] flex-1 items-center justify-center gap-1.5 rounded-xl border border-yellow-400 bg-yellow-400 px-4 py-2.5 text-[0.8125rem] font-semibold text-yellow-950"
-          @click="$emit('exportCSV')"
-        >
-          <FileDown class="h-4 w-4" :stroke-width="2" aria-hidden="true" />
-          {{ t('actions.exportCSV') }}
-        </button>
-        <button
-          type="button"
-          class="flex min-w-[7rem] flex-1 items-center justify-center gap-1.5 rounded-xl border border-inputb bg-transparent px-4 py-2.5 text-[0.8125rem] font-semibold text-textc"
-          @click="$emit('clearAll')"
-        >
-          <Eraser class="h-4 w-4" :stroke-width="2" aria-hidden="true" />
-          {{ t('actions.clearAll') }}
-        </button>
-      </div>
-      <p class="mt-2 text-[0.6875rem] text-muted">{{ t('summary.autoSave') }}</p>
-    </div>
+    <p v-if="scopeHint" class="mt-3 text-center text-[0.6875rem] text-muted">{{ scopeHint }}</p>
   </div>
 </template>

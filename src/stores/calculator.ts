@@ -1,9 +1,19 @@
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { randomId } from '../utils/id'
+import { isFirebaseConfigured } from '../lib/firebase'
+import { saveUserData } from '../services/userData'
+import {
+  type HomeDateScope,
+  isInCurrentMonth,
+  normalizeHomeDateScope,
+} from '../utils/dateScope'
 import type { AddRowPayload, PersistedData, TimeEntry } from '../types/calculator'
 
 const STORAGE_KEY = 'hours-calc-data'
+const CLOUD_SAVE_DEBOUNCE_MS = 1500
+
+export type CloudSaveStatus = 'local' | 'saving' | 'saved' | 'error'
 
 function createRow(start = '', end = '', date = '', price = 0): TimeEntry {
   return { id: randomId(8), date, start, end, price }
@@ -18,8 +28,26 @@ function loadSaved(): PersistedData | null {
   }
 }
 
+function normalizeRows(data: PersistedData, fallbackRate: number): TimeEntry[] {
+  if (!data.rows?.length) {
+    return []
+  }
+  return data.rows.map((row) => ({
+    id: row.id || randomId(8),
+    date: row.date || '',
+    start: row.start || '',
+    end: row.end || '',
+    price:
+      typeof row.price === 'number'
+        ? row.price
+        : typeof data.hourlyRate === 'number'
+          ? data.hourlyRate
+          : fallbackRate,
+  }))
+}
+
 export const useCalculatorStore = defineStore('calculator', () => {
-  const saved = loadSaved()
+  const saved = isFirebaseConfigured() ? null : loadSaved()
   const defaultRate = typeof saved?.hourlyRate === 'number' ? saved.hourlyRate : 15
 
   function today(): string {
@@ -29,22 +57,23 @@ export const useCalculatorStore = defineStore('calculator', () => {
 
   const rows = ref<TimeEntry[]>(
     saved?.rows?.length
-      ? saved.rows.map((row) => ({
-          id: row.id || randomId(8),
-          date: row.date || '',
-          start: row.start || '',
-          end: row.end || '',
-          price:
-            typeof row.price === 'number'
-              ? row.price
-              : typeof saved?.hourlyRate === 'number'
-                ? saved.hourlyRate
-                : 15,
-        }))
+      ? normalizeRows(saved, defaultRate)
       : [createRow('', '', today(), defaultRate)],
   )
 
   const hourlyRate = ref(typeof saved?.hourlyRate === 'number' ? saved.hourlyRate : 15)
+
+  const homeDateScope = ref<HomeDateScope>(normalizeHomeDateScope(saved?.homeDateScope))
+
+  const homeDisplayRows = computed(() => {
+    if (homeDateScope.value === 'all') return rows.value
+    return rows.value.filter((row) => isInCurrentMonth(row.date))
+  })
+
+  const cloudUserId = ref<string | null>(null)
+  const cloudSaveStatus = ref<CloudSaveStatus>('local')
+  let skipCloudSave = false
+  let cloudSaveTimer: ReturnType<typeof setTimeout> | null = null
 
   function addRow(): void {
     rows.value.push(createRow('', '', '', hourlyRate.value))
@@ -97,18 +126,123 @@ export const useCalculatorStore = defineStore('calculator', () => {
     return imported.length
   }
 
+  function getPersistedSnapshot(): PersistedData {
+    return {
+      rows: rows.value.map((row) => ({ ...row })),
+      hourlyRate: hourlyRate.value,
+      homeDateScope: homeDateScope.value,
+    }
+  }
+
+  function setHomeDateScope(scope: HomeDateScope): void {
+    homeDateScope.value = scope
+  }
+
+  function rowVisibleOnHome(row: TimeEntry): boolean {
+    if (homeDateScope.value === 'all') return true
+    return isInCurrentMonth(row.date)
+  }
+
+  function applyRemoteData(data: PersistedData): void {
+    skipCloudSave = true
+    const rate = typeof data.hourlyRate === 'number' ? data.hourlyRate : hourlyRate.value
+    const normalized = normalizeRows(data, rate)
+    if (normalized.length) {
+      rows.value = normalized
+    }
+    hourlyRate.value = rate
+    if (data.homeDateScope === 'all' || data.homeDateScope === 'currentMonth') {
+      homeDateScope.value = data.homeDateScope
+    }
+    persist()
+    skipCloudSave = false
+    markCloudSaved()
+  }
+
+  function setCloudUser(uid: string | null): void {
+    cloudUserId.value = uid
+    if (!uid) {
+      cloudSaveStatus.value = 'local'
+      if (cloudSaveTimer) {
+        clearTimeout(cloudSaveTimer)
+        cloudSaveTimer = null
+      }
+    }
+  }
+
+  function bootstrapFromLocalIfAny(): void {
+    const local = loadSaved()
+    if (local?.rows?.length || typeof local?.hourlyRate === 'number') {
+      applyRemoteData(local)
+    }
+  }
+
+  function resetForSignOut(): void {
+    skipCloudSave = true
+    if (cloudSaveTimer) {
+      clearTimeout(cloudSaveTimer)
+      cloudSaveTimer = null
+    }
+    cloudUserId.value = null
+    cloudSaveStatus.value = 'local'
+    rows.value = [createRow('', '', today(), 15)]
+    hourlyRate.value = 15
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {
+      /* ignore */
+    }
+    skipCloudSave = false
+  }
+
+  function markCloudSaved(): void {
+    if (cloudUserId.value) cloudSaveStatus.value = 'saved'
+  }
+
+  function setCloudError(): void {
+    if (cloudUserId.value) cloudSaveStatus.value = 'error'
+  }
+
+  function scheduleCloudSave(): void {
+    const uid = cloudUserId.value
+    if (!uid || skipCloudSave) return
+
+    if (cloudSaveTimer) clearTimeout(cloudSaveTimer)
+    cloudSaveStatus.value = 'saving'
+
+    cloudSaveTimer = setTimeout(() => {
+      cloudSaveTimer = null
+      void saveUserData(uid, getPersistedSnapshot())
+        .then(() => {
+          if (cloudUserId.value === uid) cloudSaveStatus.value = 'saved'
+        })
+        .catch((err) => {
+          console.error('[calculator] Cloud save failed', err)
+          if (cloudUserId.value === uid) cloudSaveStatus.value = 'error'
+        })
+    }, CLOUD_SAVE_DEBOUNCE_MS)
+  }
+
   function persist(): void {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ rows: rows.value, hourlyRate: hourlyRate.value }),
+      JSON.stringify({
+        rows: rows.value,
+        hourlyRate: hourlyRate.value,
+        homeDateScope: homeDateScope.value,
+      }),
     )
+    scheduleCloudSave()
   }
 
-  watch([rows, hourlyRate], persist, { deep: true })
+  watch([rows, hourlyRate, homeDateScope], persist, { deep: true })
 
   return {
     rows,
     hourlyRate,
+    homeDateScope,
+    homeDisplayRows,
+    cloudSaveStatus,
     today,
     addRow,
     addRowWithDate,
@@ -116,5 +250,14 @@ export const useCalculatorStore = defineStore('calculator', () => {
     removeRow,
     clearAll,
     importEntries,
+    setHomeDateScope,
+    rowVisibleOnHome,
+    getPersistedSnapshot,
+    applyRemoteData,
+    setCloudUser,
+    markCloudSaved,
+    setCloudError,
+    bootstrapFromLocalIfAny,
+    resetForSignOut,
   }
 })

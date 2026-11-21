@@ -131,6 +131,7 @@ const weekGroups = computed((): WeekGroup[] => {
   const map = new Map<string, WeekGroup>()
   store.rows.forEach((row, idx) => {
     if (!row.start || !row.end) return
+    if (!store.rowVisibleOnHome(row)) return
     const { week, year } = isoWeekKey(row.date)
     const weekKey =
       week !== null && year !== null ? formatISOWeekKey(year, week) : 'no-date'
@@ -154,6 +155,14 @@ const weekGroups = computed((): WeekGroup[] => {
   })
   return list
 })
+
+const hasCompleteRows = computed(() =>
+  store.rows.some((row) => row.start && row.end),
+)
+
+const hasRowsOutsideHomeScope = computed(() =>
+  store.rows.some((row) => row.start && row.end && !store.rowVisibleOnHome(row)),
+)
 </script>
 
 <template>
@@ -211,8 +220,20 @@ const weekGroups = computed((): WeekGroup[] => {
     v-else
     class="mb-20 rounded-[1.25rem] border-2 border-dashed border-inputb bg-white/60 px-4 py-8 text-center"
   >
-    <p class="m-0 font-semibold text-textc">{{ t('empty.message') }}</p>
-    <p class="mt-2 text-[0.8125rem] text-muted">{{ t('empty.hintUnified') }}</p>
+    <p class="m-0 font-semibold text-textc">
+      {{
+        store.homeDateScope === 'currentMonth' && hasRowsOutsideHomeScope
+          ? t('homeScope.emptyCurrentMonth')
+          : t('empty.message')
+      }}
+    </p>
+    <p class="mt-2 text-[0.8125rem] text-muted">
+      {{
+        store.homeDateScope === 'currentMonth' && hasCompleteRows
+          ? t('homeScope.switchToAllHint')
+          : t('empty.hintUnified')
+      }}
+    </p>
   </div>
 
   <FabAdd :can-add="canAdd" @add="addEntry" />
