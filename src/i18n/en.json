@@ -1,0 +1,131 @@
+{
+  "nav": {
+    "tracker": "Time Tracker",
+    "stats": "Statistics",
+    "import": "Import CSV"
+  },
+  "stats": {
+    "groupBy": "Group by",
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "dateRange": "Date range",
+    "customRange": "Custom range",
+    "weekCanvasLabel": "week {n}, {y}",
+    "thisWeek": "This week",
+    "thisMonth": "This month",
+    "lastMonth": "Last month",
+    "thisYear": "This year",
+    "all": "All time",
+    "entries": "entries",
+    "totalHours": "Total hours",
+    "decimal": "decimal",
+    "totalPay": "Total pay",
+    "perHour": "/ hr",
+    "workDays": "Work days",
+    "uniqueDays": "unique days",
+    "avgPerDay": "Avg per day",
+    "hoursPerPeriod": "Hours per period",
+    "noData": "No data for the selected period.",
+    "breakdown": "Breakdown",
+    "periods": "periods",
+    "period": "Period",
+    "daysWorked": "Days",
+    "hours": "Hours",
+    "pay": "Pay",
+    "avgDay": "Avg / day",
+    "total": "Total"
+  },
+  "app": {
+    "title": "Hours Calculator",
+    "subtitle": "Enter start and end time for each entry. The calculator automatically handles overnight shifts (e.g. 22:00 → 02:00 = 4 hours)."
+  },
+  "summary": {
+    "hourlyRate": "Hourly rate (optional currency)",
+    "hourlyRateHint": "Applied to all durations to calculate total pay. Leave as zero if not needed.",
+    "total": "Total",
+    "totalPay": "Total pay",
+    "autoSave": "Auto-saved in browser (LocalStorage).",
+    "showDetails": "Rate & actions",
+    "hideDetails": "Hide details"
+  },
+  "actions": {
+    "exportCSV": "Export CSV",
+    "clearAll": "Clear all",
+    "addEntry": "Add entry",
+    "delete": "Delete",
+    "save": "Save entry",
+    "cancel": "Cancel"
+  },
+  "entryModal": {
+    "title": "Add entry",
+    "fillTimes": "Enter start and end time to save."
+  },
+  "row": {
+    "date": "Date",
+    "from": "From",
+    "to": "To",
+    "duration": "Duration",
+    "price": "Price",
+    "pay": "Paid",
+    "hours": "hours",
+    "hour": "hour"
+  },
+  "warnings": {
+    "overnight": "Overnight shift detected",
+    "sameTime": "Start and end time are the same",
+    "shortShift": "Very short shift (less than 15 min)",
+    "fillTimesFirst": "Fill in start and end time for all entries first"
+  },
+  "week": {
+    "label": "Week {n}",
+    "labelWithYear": "Week {n}, {y}",
+    "noDate": "No date",
+    "current": "This week"
+  },
+  "empty": {
+    "message": "No entries yet. Start by adding your first time period.",
+    "hint": "'Click \"Add entry\" to add a new row. You can delete any row individually.'",
+    "hintWeek": "Add a new entry to this week.",
+    "hintGlobal": "Add a new entry. It will be grouped by week automatically.",
+    "hintUnified": "Tap + to add an entry. It is placed in this week and grouped automatically."
+  },
+  "time": {
+    "h": "h",
+    "m": "m"
+  },
+  "csv": {
+    "date": "Date",
+    "start": "Start",
+    "end": "End",
+    "duration": "Duration (h)",
+    "pay": "Pay"
+  },
+  "import": {
+    "title": "Import CSV",
+    "description": "Upload a CSV file with your time entries. Use the same columns as export: date, start, end (duration and pay are optional).",
+    "formatHint": "Date format: YYYY-MM-DD. Times: HH:MM (24h). Overnight shifts are supported.",
+    "chooseFile": "Choose CSV file",
+    "dropOrClick": "Drag & drop a CSV file here, or tap to browse",
+    "dropHere": "Drop your CSV file",
+    "noFile": "No file selected",
+    "modeLabel": "Import mode",
+    "modeMerge": "Add to existing entries",
+    "modeReplace": "Replace all entries",
+    "rowsFound": "{n} rows ready to import",
+    "previewTruncated": "Showing {n} of {total} rows.",
+    "importButton": "Import into tracker",
+    "success": "Imported {n} entries.",
+    "downloadSample": "Download sample CSV",
+    "loadDemo": "Load demo data into tracker",
+    "previewDemo": "Preview demo CSV",
+    "demoLoaded": "Demo data loaded ({n} entries across multiple weeks, rate {rate}).",
+    "demoFileName": "hours-sample.csv",
+    "errors": {
+      "empty": "The file is empty.",
+      "noValidRows": "No valid rows found. Each row needs a date (YYYY-MM-DD), start, and end time.",
+      "invalidRow": "Row {n}: invalid date or time — skipped.",
+      "notCsv": "Please drop a .csv file."
+    }
+  }
+}

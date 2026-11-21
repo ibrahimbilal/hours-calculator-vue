@@ -1,0 +1,131 @@
+{
+  "nav": {
+    "tracker": "Tijdregistratie",
+    "stats": "Statistieken",
+    "import": "CSV importeren"
+  },
+  "stats": {
+    "groupBy": "Groepeer op",
+    "day": "Dag",
+    "week": "Week",
+    "month": "Maand",
+    "dateRange": "Datumbereik",
+    "customRange": "Aangepast bereik",
+    "weekCanvasLabel": "week {n}, {y}",
+    "thisWeek": "Deze week",
+    "thisMonth": "Deze maand",
+    "lastMonth": "Vorige maand",
+    "thisYear": "Dit jaar",
+    "all": "Alle tijd",
+    "entries": "invoeren",
+    "totalHours": "Totale uren",
+    "decimal": "decimaal",
+    "totalPay": "Totaal loon",
+    "perHour": "/ uur",
+    "workDays": "Werkdagen",
+    "uniqueDays": "unieke dagen",
+    "avgPerDay": "Gem. per dag",
+    "hoursPerPeriod": "Uren per periode",
+    "noData": "Geen gegevens voor de geselecteerde periode.",
+    "breakdown": "Overzicht",
+    "periods": "periodes",
+    "period": "Periode",
+    "daysWorked": "Dagen",
+    "hours": "Uren",
+    "pay": "Loon",
+    "avgDay": "Gem. / dag",
+    "total": "Totaal"
+  },
+  "app": {
+    "title": "Uren Calculator",
+    "subtitle": "Voer begin- en eindtijd in voor elke invoer. De calculator verwerkt automatisch nachtdiensten (bijv. 22:00 → 02:00 = 4 uur)."
+  },
+  "summary": {
+    "hourlyRate": "Uurtarief (optionele valuta)",
+    "hourlyRateHint": "Wordt toegepast op alle tijdsduren om het totale loon te berekenen. Laat op nul staan als niet nodig.",
+    "total": "Totaal",
+    "totalPay": "Totaal loon",
+    "autoSave": "Automatisch opgeslagen in browser (LocalStorage).",
+    "showDetails": "Tarief & acties",
+    "hideDetails": "Details verbergen"
+  },
+  "actions": {
+    "exportCSV": "Exporteer CSV",
+    "clearAll": "Alles wissen",
+    "addEntry": "Invoer toevoegen",
+    "delete": "Verwijderen",
+    "save": "Invoer opslaan",
+    "cancel": "Annuleren"
+  },
+  "entryModal": {
+    "title": "Invoer toevoegen",
+    "fillTimes": "Vul begin- en eindtijd in om op te slaan."
+  },
+  "row": {
+    "date": "Datum",
+    "from": "Van",
+    "to": "Tot",
+    "duration": "Duur",
+    "price": "Prijs",
+    "pay": "Betaald",
+    "hours": "uren",
+    "hour": "uur"
+  },
+  "warnings": {
+    "overnight": "Nachtdienst gedetecteerd",
+    "sameTime": "Begin- en eindtijd zijn gelijk",
+    "shortShift": "Zeer korte dienst (minder dan 15 min)",
+    "fillTimesFirst": "Vul eerst begin- en eindtijd in voor alle invoeren"
+  },
+  "week": {
+    "label": "Week {n}",
+    "labelWithYear": "Week {n}, {y}",
+    "noDate": "Geen datum",
+    "current": "Deze week"
+  },
+  "empty": {
+    "message": "Nog geen invoeren. Begin met het toevoegen van je eerste tijdsperiode.",
+    "hint": "'Klik op \"Invoer toevoegen\" om een nieuwe rij toe te voegen. U kunt elke rij afzonderlijk verwijderen.'",
+    "hintWeek": "Voeg een nieuwe invoer toe aan deze week.",
+    "hintGlobal": "Voeg een nieuwe invoer toe. Deze wordt automatisch per week gegroepeerd.",
+    "hintUnified": "Tik op + om een invoer toe te voegen. Deze komt in deze week en wordt automatisch gegroepeerd."
+  },
+  "time": {
+    "h": "u",
+    "m": "m"
+  },
+  "csv": {
+    "date": "Datum",
+    "start": "Start",
+    "end": "Einde",
+    "duration": "Duur (u)",
+    "pay": "Loon"
+  },
+  "import": {
+    "title": "CSV importeren",
+    "description": "Upload een CSV met je uren. Dezelfde kolommen als bij export: datum, start, einde (duur en loon zijn optioneel).",
+    "formatHint": "Datum: JJJJ-MM-DD. Tijden: HH:MM (24u). Nachtdiensten worden ondersteund.",
+    "chooseFile": "Kies CSV-bestand",
+    "dropOrClick": "Sleep een CSV-bestand hierheen, of tik om te bladeren",
+    "dropHere": "Laat het CSV-bestand los",
+    "noFile": "Geen bestand gekozen",
+    "modeLabel": "Importmodus",
+    "modeMerge": "Toevoegen aan bestaande invoeren",
+    "modeReplace": "Alle invoeren vervangen",
+    "rowsFound": "{n} rijen klaar om te importeren",
+    "previewTruncated": "Toont {n} van {total} rijen.",
+    "importButton": "Importeren naar tracker",
+    "success": "{n} invoeren geïmporteerd.",
+    "downloadSample": "Voorbeeld-CSV downloaden",
+    "loadDemo": "Demodata in tracker laden",
+    "previewDemo": "Demo-CSV bekijken",
+    "demoLoaded": "Demodata geladen ({n} invoeren over meerdere weken, tarief {rate}).",
+    "demoFileName": "hours-sample.csv",
+    "errors": {
+      "empty": "Het bestand is leeg.",
+      "noValidRows": "Geen geldige rijen. Elke rij heeft datum (JJJJ-MM-DD), start en eindtijd nodig.",
+      "invalidRow": "Rij {n}: ongeldige datum of tijd — overgeslagen.",
+      "notCsv": "Sleep alleen een .csv-bestand."
+    }
+  }
+}

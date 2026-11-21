@@ -1,0 +1,145 @@
+import type { AddRowPayload } from '../types/calculator'
+import { durationMinutes, formatCurrency, hoursDecimal } from '../composables/useTimeCalc'
+import type { TimeEntry } from '../types/calculator'
+
+export function escapeCsvField(value: string | number): string {
+  const s = String(value)
+  if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+    return `"${s.replace(/"/g, '""')}"`
+  }
+  return s
+}
+
+export function buildExportCsv(
+  rows: TimeEntry[],
+  hourlyRate: number,
+  headerLabels: [string, string, string, string, string],
+): string {
+  const header = headerLabels.join(',')
+  const lines = rows.map((row) => {
+    const hours = (durationMinutes(row) / 60).toFixed(2)
+    const pay = formatCurrency(hoursDecimal(row) * (row.price ?? hourlyRate))
+    return [
+      escapeCsvField(row.date || ''),
+      escapeCsvField(row.start || ''),
+      escapeCsvField(row.end || ''),
+      escapeCsvField(hours),
+      escapeCsvField(pay),
+    ].join(',')
+  })
+  return [header, ...lines].join('\n')
+}
+
+/** RFC 4180-style CSV parse (comma-separated, quoted fields). */
+export function parseCsvRecords(text: string): string[][] {
+  const records: string[][] = []
+  let row: string[] = []
+  let field = ''
+  let inQuotes = false
+
+  const pushRow = () => {
+    row.push(field)
+    if (row.some((cell) => cell.trim() !== '')) {
+      records.push(row)
+    }
+    row = []
+    field = ''
+  }
+
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i]
+    const next = text[i + 1]
+
+    if (inQuotes) {
+      if (c === '"' && next === '"') {
+        field += '"'
+        i++
+      } else if (c === '"') {
+        inQuotes = false
+      } else {
+        field += c
+      }
+      continue
+    }
+
+    if (c === '"') {
+      inQuotes = true
+    } else if (c === ',') {
+      row.push(field)
+      field = ''
+    } else if (c === '\n') {
+      pushRow()
+    } else if (c === '\r') {
+      if (next === '\n') i++
+      pushRow()
+    } else {
+      field += c
+    }
+  }
+
+  if (field.length > 0 || row.length > 0) {
+    pushRow()
+  }
+
+  return records
+}
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+const TIME_RE = /^\d{1,2}:\d{2}$/
+
+function normalizeTime(time: string): string {
+  const t = time.trim()
+  if (!TIME_RE.test(t)) return ''
+  const [h, m] = t.split(':')
+  return `${String(Number(h)).padStart(2, '0')}:${m}`
+}
+
+function isLikelyHeaderRow(cells: string[]): boolean {
+  const first = cells[0]?.trim() ?? ''
+  return !DATE_RE.test(first)
+}
+
+export type CsvImportResult = {
+  entries: AddRowPayload[]
+  errors: string[]
+  skippedHeader: boolean
+}
+
+export function entriesFromCsv(
+  text: string,
+  invalidRowMessage: (line: number) => string,
+): CsvImportResult {
+  const records = parseCsvRecords(text.trim())
+  const errors: string[] = []
+  const entries: AddRowPayload[] = []
+
+  if (records.length === 0) {
+    return { entries, errors: ['empty'], skippedHeader: false }
+  }
+
+  let startIndex = 0
+  let skippedHeader = false
+  if (isLikelyHeaderRow(records[0]!)) {
+    startIndex = 1
+    skippedHeader = true
+  }
+
+  for (let i = startIndex; i < records.length; i++) {
+    const cells = records[i]!
+    const lineNum = i + 1
+    const date = cells[0]?.trim() ?? ''
+    const start = normalizeTime(cells[1] ?? '')
+    const end = normalizeTime(cells[2] ?? '')
+
+    if (!date && !start && !end) continue
+
+    if (!DATE_RE.test(date) || !start || !end) {
+      errors.push(invalidRowMessage(lineNum))
+      continue
+    }
+
+    entries.push({ date, start, end })
+  }
+
+  return { entries, errors, skippedHeader }
+}
