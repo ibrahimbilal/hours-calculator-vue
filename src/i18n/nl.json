@@ -2,7 +2,7 @@
   "nav": {
     "tracker": "Tijdregistratie",
     "stats": "Statistieken",
-    "import": "Import & export"
+    "import": "CSV importeren"
   },
   "stats": {
     "groupBy": "Groepeer op",
@@ -68,18 +68,35 @@
     "signedInWithEmail": "Ingelogd met e-mail",
     "nameFromGoogle": "Ingevuld vanuit je Google-account. Je kunt het hier aanpassen.",
     "workDefaults": "Standaardwaarden",
+    "currency": "Valutasymbool",
+    "currencyHint": "Voor loon totalen, regelbedragen, statistieken en CSV-export.",
+    "currencies": {
+      "EUR": "Euro",
+      "USD": "Amerikaanse dollar",
+      "GBP": "Pond sterling",
+      "CHF": "Zwitserse frank",
+      "MAD": "Marokkaanse dirham",
+      "AED": "VAE-dirham",
+      "SAR": "Saoedi-rijal"
+    },
     "data": "Jouw gegevens"
   },
   "actions": {
     "clearAll": "Alles wissen",
     "addEntry": "Invoer toevoegen",
+    "edit": "Bewerken",
     "delete": "Verwijderen",
     "save": "Invoer opslaan",
     "cancel": "Annuleren"
   },
   "entryModal": {
     "title": "Invoer toevoegen",
+    "editTitle": "Invoer bewerken",
     "fillTimes": "Vul begin- en eindtijd in om op te slaan."
+  },
+  "deleteConfirm": {
+    "title": "Invoer verwijderen?",
+    "message": "Deze invoer wordt permanent verwijderd."
   },
   "row": {
     "date": "Datum",
@@ -102,6 +119,13 @@
     "labelWithYear": "Week {n}, {y}",
     "noDate": "Geen datum",
     "current": "Deze week"
+  },
+  "export": {
+    "selectAllWeeks": "Alles selecteren",
+    "unselectAllWeeks": "Alles deselecteren",
+    "selectWeek": "Selecteer {week} voor export",
+    "all": "Alles exporteren",
+    "selected": "Selectie exporteren"
   },
   "empty": {
     "message": "Nog geen invoeren. Begin met het toevoegen van je eerste tijdsperiode.",
@@ -172,11 +196,8 @@
     }
   },
   "import": {
-    "title": "Importeren & exporteren",
-    "exportSection": "Exporteren",
-    "exportCsv": "Uren downloaden als CSV",
-    "exportHint": "Sla je huidige invoeren op in een spreadsheetbestand.",
-    "description": "Upload een CSV met je uren. Dezelfde kolommen als bij download: datum, start, einde (duur en loon zijn optioneel).",
+    "title": "CSV importeren",
+    "description": "Upload een CSV met je uren. Dezelfde kolommen als bij export: datum, start, einde (duur en loon zijn optioneel).",
     "formatHint": "Datum: JJJJ-MM-DD. Tijden: HH:MM (24u). Nachtdiensten worden ondersteund.",
     "chooseFile": "Kies CSV-bestand",
     "dropOrClick": "Sleep een CSV-bestand hierheen, of tik om te bladeren",
@@ -189,11 +210,6 @@
     "previewTruncated": "Toont {n} van {total} rijen.",
     "importButton": "Importeren naar tracker",
     "success": "{n} invoeren geïmporteerd.",
-    "downloadSample": "Voorbeeld-CSV downloaden",
-    "loadDemo": "Demodata in tracker laden",
-    "previewDemo": "Demo-CSV bekijken",
-    "demoLoaded": "Demodata geladen ({n} invoeren over meerdere weken, tarief {rate}).",
-    "demoFileName": "hours-sample.csv",
     "errors": {
       "empty": "Het bestand is leeg.",
       "noValidRows": "Geen geldige rijen. Elke rij heeft datum (JJJJ-MM-DD), start en eindtijd nodig.",

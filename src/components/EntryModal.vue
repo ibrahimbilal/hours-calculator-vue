@@ -4,10 +4,14 @@ import { useI18n } from 'vue-i18n'
 import type { DraftEntry } from '../types/calculator'
 import TimeRow from './TimeRow.vue'
 
-const props = defineProps<{
-  open: boolean
-  row: DraftEntry | null
-}>()
+const props = withDefaults(
+  defineProps<{
+    open: boolean
+    row: DraftEntry | null
+    editing?: boolean
+  }>(),
+  { editing: false },
+)
 
 const emit = defineEmits<{
   cancel: []
@@ -79,10 +83,10 @@ onUnmounted(() => {
             <div class="mx-auto mb-4 h-1 w-10 shrink-0 rounded-full bg-inputb" aria-hidden="true" />
 
             <h2 id="entry-modal-title" class="mb-4 text-center text-lg font-semibold text-textc">
-              {{ t('entryModal.title') }}
+              {{ editing ? t('entryModal.editTitle') : t('entryModal.title') }}
             </h2>
 
-            <TimeRow :row="row" :show-delete="false" />
+            <TimeRow :row="row" editable />
 
             <p v-if="!canSave" class="mt-3 text-center text-xs text-muted">
               {{ t('entryModal.fillTimes') }}

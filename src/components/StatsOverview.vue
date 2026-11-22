@@ -16,7 +16,7 @@ import {
 } from 'chart.js'
 import type { ChartConfiguration } from 'chart.js'
 import { useCalculatorStore } from '../stores/calculator'
-import { durationMinutes, useTimeCalc, formatCurrency } from '../composables/useTimeCalc'
+import { durationMinutes, useTimeCalc } from '../composables/useTimeCalc'
 import {
   isoWeekRangeLabel,
   parseISOWeekKey,
@@ -42,7 +42,7 @@ Chart.register(
 )
 
 const { t, locale } = useI18n()
-const { formatHM } = useTimeCalc()
+const { formatHM, currency } = useTimeCalc()
 const store = useCalculatorStore()
 
 const groupBy = ref<GroupBy>('week')
@@ -177,7 +177,7 @@ const periods = computed(() => {
       days: data.days.size,
       hours: parseFloat((data.totalMins / 60).toFixed(2)),
       hoursFormatted: formatHM(data.totalMins),
-      payFormatted: data.totalPay > 0 ? formatCurrency(data.totalPay) : '—',
+      payFormatted: data.totalPay > 0 ? currency(data.totalPay) : '—',
       avgFormatted: data.days.size > 0 ? formatHM(Math.round(data.totalMins / data.days.size)) : '—',
     }))
 })
@@ -399,7 +399,7 @@ watch(periods, () => nextTick(buildChart), { deep: true })
       <div class="bg-card rounded-xl border border-inputb p-4">
         <div class="text-xs text-muted mb-1">{{ t('stats.totalPay') }}</div>
         <div class="text-2xl font-semibold text-accent">
-          <template v-if="totalPay > 0">{{ formatCurrency(totalPay) }}</template>
+          <template v-if="totalPay > 0">{{ currency(totalPay) }}</template>
           <template v-else>—</template>
         </div>
         <div class="text-xs text-muted mt-1">&nbsp;</div>
@@ -475,7 +475,7 @@ watch(periods, () => nextTick(buildChart), { deep: true })
                 <span class="text-xs font-normal text-muted ms-1">({{ (totalMinutes / 60).toFixed(2) }}h)</span>
               </td>
               <td v-if="totalPay > 0" class="px-4 py-3 text-end text-accent text-nowrap">
-                {{ formatCurrency(totalPay) }}
+                {{ currency(totalPay) }}
               </td>
               <td class="px-4 py-3 text-end text-muted text-nowrap">{{ avgPerDay }}</td>
             </tr>

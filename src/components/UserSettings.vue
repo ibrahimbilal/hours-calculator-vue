@@ -12,6 +12,7 @@ import {
   isEmailPasswordAccount,
   isGoogleAccount,
 } from '../utils/authProfile'
+import { CURRENCY_OPTIONS, type CurrencyCode } from '../utils/currency'
 
 const emit = defineEmits<{ back: [] }>()
 
@@ -152,6 +153,21 @@ function clearAll() {
           "
         />
         <p class="mt-2 text-[0.6875rem] text-muted">{{ t('summary.hourlyRateHint') }}</p>
+        <label class="mb-2 mt-4 block text-xs text-muted">{{ t('settings.currency') }}</label>
+        <select
+          :value="store.currencyCode"
+          class="w-full rounded-xl border border-inputb bg-input px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/35"
+          @change="
+            store.setCurrencyCode(
+              ($event.target as HTMLSelectElement).value as CurrencyCode,
+            )
+          "
+        >
+          <option v-for="opt in CURRENCY_OPTIONS" :key="opt.code" :value="opt.code">
+            {{ opt.symbol }} — {{ t(`settings.currencies.${opt.code}`) }}
+          </option>
+        </select>
+        <p class="mt-2 text-[0.6875rem] text-muted">{{ t('settings.currencyHint') }}</p>
       </section>
 
       <section class="mb-4">

@@ -4,6 +4,12 @@ import { randomId } from '../utils/id'
 import { isFirebaseConfigured } from '../lib/firebase'
 import { saveUserData } from '../services/userData'
 import {
+  DEFAULT_CURRENCY_CODE,
+  type CurrencyCode,
+  currencySymbolFor,
+  normalizeCurrencyCode,
+} from '../utils/currency'
+import {
   type HomeDateScope,
   isInCurrentMonth,
   normalizeHomeDateScope,
@@ -26,6 +32,15 @@ function loadSaved(): PersistedData | null {
   } catch {
     return null
   }
+}
+
+function normalizeExportedWeekSignatures(value: unknown): Record<string, string> {
+  if (!value || typeof value !== 'object') return {}
+  const out: Record<string, string> = {}
+  for (const [key, sig] of Object.entries(value)) {
+    if (typeof key === 'string' && typeof sig === 'string' && sig) out[key] = sig
+  }
+  return out
 }
 
 function normalizeRows(data: PersistedData, fallbackRate: number): TimeEntry[] {
@@ -64,6 +79,14 @@ export const useCalculatorStore = defineStore('calculator', () => {
   const hourlyRate = ref(typeof saved?.hourlyRate === 'number' ? saved.hourlyRate : 15)
 
   const homeDateScope = ref<HomeDateScope>(normalizeHomeDateScope(saved?.homeDateScope))
+
+  const exportedWeekSignatures = ref<Record<string, string>>(
+    normalizeExportedWeekSignatures(saved?.exportedWeekSignatures),
+  )
+
+  const currencyCode = ref<CurrencyCode>(normalizeCurrencyCode(saved?.currencyCode))
+
+  const currencySymbol = computed(() => currencySymbolFor(currencyCode.value))
 
   const homeDisplayRows = computed(() => {
     if (homeDateScope.value === 'all') return rows.value
@@ -131,7 +154,17 @@ export const useCalculatorStore = defineStore('calculator', () => {
       rows: rows.value.map((row) => ({ ...row })),
       hourlyRate: hourlyRate.value,
       homeDateScope: homeDateScope.value,
+      currencyCode: currencyCode.value,
+      exportedWeekSignatures: { ...exportedWeekSignatures.value },
     }
+  }
+
+  function setCurrencyCode(code: CurrencyCode): void {
+    currencyCode.value = normalizeCurrencyCode(code)
+  }
+
+  function patchExportedWeekSignatures(patch: Record<string, string>): void {
+    exportedWeekSignatures.value = { ...exportedWeekSignatures.value, ...patch }
   }
 
   function setHomeDateScope(scope: HomeDateScope): void {
@@ -153,6 +186,14 @@ export const useCalculatorStore = defineStore('calculator', () => {
     hourlyRate.value = rate
     if (data.homeDateScope === 'all' || data.homeDateScope === 'currentMonth') {
       homeDateScope.value = data.homeDateScope
+    }
+    if (data.exportedWeekSignatures !== undefined) {
+      exportedWeekSignatures.value = normalizeExportedWeekSignatures(
+        data.exportedWeekSignatures,
+      )
+    }
+    if (data.currencyCode !== undefined) {
+      currencyCode.value = normalizeCurrencyCode(data.currencyCode)
     }
     persist()
     skipCloudSave = false
@@ -187,6 +228,8 @@ export const useCalculatorStore = defineStore('calculator', () => {
     cloudSaveStatus.value = 'local'
     rows.value = [createRow('', '', today(), 15)]
     hourlyRate.value = 15
+    exportedWeekSignatures.value = {}
+    currencyCode.value = DEFAULT_CURRENCY_CODE
     try {
       localStorage.removeItem(STORAGE_KEY)
     } catch {
@@ -230,17 +273,26 @@ export const useCalculatorStore = defineStore('calculator', () => {
         rows: rows.value,
         hourlyRate: hourlyRate.value,
         homeDateScope: homeDateScope.value,
+        currencyCode: currencyCode.value,
+        exportedWeekSignatures: exportedWeekSignatures.value,
       }),
     )
     scheduleCloudSave()
   }
 
-  watch([rows, hourlyRate, homeDateScope], persist, { deep: true })
+  watch(
+    [rows, hourlyRate, homeDateScope, currencyCode, exportedWeekSignatures],
+    persist,
+    { deep: true },
+  )
 
   return {
     rows,
     hourlyRate,
     homeDateScope,
+    currencyCode,
+    currencySymbol,
+    exportedWeekSignatures,
     homeDisplayRows,
     cloudSaveStatus,
     today,
@@ -251,6 +303,8 @@ export const useCalculatorStore = defineStore('calculator', () => {
     clearAll,
     importEntries,
     setHomeDateScope,
+    setCurrencyCode,
+    patchExportedWeekSignatures,
     rowVisibleOnHome,
     getPersistedSnapshot,
     applyRemoteData,

@@ -12,10 +12,12 @@ import {
   weekKeyFromDate,
 } from '../utils/isoWeek'
 import type { DraftEntry, TimeEntry } from '../types/calculator'
-import { ChevronDown } from '@lucide/vue'
+import { buildExportCsv, downloadCsvFile } from '../utils/csv'
+import { Check, ChevronDown, FileDown } from '@lucide/vue'
 import TimeRow from './TimeRow.vue'
 import FabAdd from './FabAdd.vue'
 import EntryModal from './EntryModal.vue'
+import ConfirmDialog from './ConfirmDialog.vue'
 
 interface WeekGroup {
   weekKey: string
@@ -31,9 +33,11 @@ const { formatHM } = useTimeCalc()
 const store = useCalculatorStore()
 
 const collapsed = ref(new Set<string>())
+const selectedExportWeeks = ref<Set<string>>(new Set())
 const showEntryModal = ref(false)
 const draftRow = ref<DraftEntry | null>(null)
 const modalExistingIdx = ref<number | null>(null)
+const pendingDeleteIdx = ref<number | null>(null)
 
 onMounted(() => {
   const thisWeek = currentWeekKey()
@@ -67,6 +71,36 @@ const modalRow = computed((): DraftEntry | null => {
   }
   return draftRow.value
 })
+
+function openEntryModalForIdx(idx: number) {
+  if (showEntryModal.value) return
+  modalExistingIdx.value = idx
+  draftRow.value = null
+  showEntryModal.value = true
+  const row = store.rows[idx]
+  if (row) expandWeek(weekKeyFromDate(row.date || store.today()))
+}
+
+function editEntry(idx: number) {
+  openEntryModalForIdx(idx)
+}
+
+function requestDeleteEntry(idx: number) {
+  pendingDeleteIdx.value = idx
+}
+
+function cancelDeleteEntry() {
+  pendingDeleteIdx.value = null
+}
+
+function confirmDeleteEntry() {
+  const idx = pendingDeleteIdx.value
+  if (idx === null) return
+  store.removeRow(idx)
+  pendingDeleteIdx.value = null
+}
+
+const entryModalEditing = computed(() => modalExistingIdx.value !== null && draftRow.value === null)
 
 function addEntry() {
   if (showEntryModal.value) return
@@ -108,7 +142,7 @@ function saveEntry() {
   closeEntryModal()
 }
 
-const canAdd = computed(() => !showEntryModal.value)
+const canAdd = computed(() => !showEntryModal.value && pendingDeleteIdx.value === null)
 
 function makeWeekGroup(weekKey: string, thisWeek: string | null): WeekGroup {
   const parsed = parseISOWeekKey(weekKey)
@@ -163,22 +197,202 @@ const hasCompleteRows = computed(() =>
 const hasRowsOutsideHomeScope = computed(() =>
   store.rows.some((row) => row.start && row.end && !store.rowVisibleOnHome(row)),
 )
+
+const hasExportWeekSelection = computed(() => selectedExportWeeks.value.size > 0)
+
+function isWeekSelectedForExport(weekKey: string): boolean {
+  return selectedExportWeeks.value.has(weekKey)
+}
+
+const exportButtonLabel = computed(() =>
+  hasExportWeekSelection.value ? t('export.selected') : t('export.all'),
+)
+
+const allWeeksSelectedForExport = computed(() => {
+  const keys = weekGroups.value.map((g) => g.weekKey)
+  if (keys.length === 0) return false
+  return keys.every((k) => selectedExportWeeks.value.has(k))
+})
+
+const selectAllToggleLabel = computed(() =>
+  allWeeksSelectedForExport.value ? t('export.unselectAllWeeks') : t('export.selectAllWeeks'),
+)
+
+function weekRowsSignature(group: WeekGroup): string {
+  return group.entries
+    .map(
+      (e) =>
+        `${e.row.id}|${e.row.date}|${e.row.start}|${e.row.end}|${e.row.price ?? ''}`,
+    )
+    .join(';')
+}
+
+function isWeekExported(weekKey: string): boolean {
+  const group = weekGroups.value.find((g) => g.weekKey === weekKey)
+  if (!group) return false
+  const saved = store.exportedWeekSignatures[weekKey]
+  if (!saved) return false
+  return saved === weekRowsSignature(group)
+}
+
+function selectAllExportWeeks() {
+  selectedExportWeeks.value = new Set(weekGroups.value.map((g) => g.weekKey))
+}
+
+function toggleSelectAllExportWeeks() {
+  if (allWeeksSelectedForExport.value) {
+    selectedExportWeeks.value = new Set()
+  } else {
+    selectAllExportWeeks()
+  }
+}
+
+function setWeekExportSelected(weekKey: string, selected: boolean) {
+  const next = new Set(selectedExportWeeks.value)
+  if (selected) next.add(weekKey)
+  else next.delete(weekKey)
+  selectedExportWeeks.value = next
+}
+
+function clearExportWeekSelection() {
+  selectedExportWeeks.value = new Set()
+}
+
+function markWeeksExported(weekKeys: string[]) {
+  const patch: Record<string, string> = {}
+  for (const key of weekKeys) {
+    const group = weekGroups.value.find((g) => g.weekKey === key)
+    if (group) patch[key] = weekRowsSignature(group)
+  }
+  store.patchExportedWeekSignatures(patch)
+}
+
+function exportCsvHeaders(): [string, string, string, string, string] {
+  return [
+    t('csv.date'),
+    t('csv.start'),
+    t('csv.end'),
+    t('csv.duration'),
+    t('csv.pay'),
+  ]
+}
+
+function runExport() {
+  const stamp = new Date().toISOString().slice(0, 10)
+  const headers = exportCsvHeaders()
+
+  if (!hasExportWeekSelection.value) {
+    const rows = store.rows.filter((row) => row.start && row.end)
+    if (rows.length === 0) return
+    const csv = buildExportCsv(rows, store.hourlyRate, headers, store.currencySymbol)
+    downloadCsvFile(`hours-${stamp}.csv`, csv)
+    markWeeksExported(weekGroups.value.map((g) => g.weekKey))
+    clearExportWeekSelection()
+    return
+  }
+
+  const selected = selectedExportWeeks.value
+  const rows: TimeEntry[] = []
+  const marked: string[] = []
+  for (const group of weekGroups.value) {
+    if (!selected.has(group.weekKey)) continue
+    marked.push(group.weekKey)
+    for (const entry of group.entries) rows.push(entry.row)
+  }
+  if (rows.length === 0) return
+
+  const csv = buildExportCsv(rows, store.hourlyRate, headers, store.currencySymbol)
+  const singleWeek = marked.length === 1 ? marked[0]! : null
+  const filename = singleWeek
+    ? singleWeek === 'no-date'
+      ? `hours-no-date-${stamp}.csv`
+      : `hours-${singleWeek}-${stamp}.csv`
+    : `hours-selected-${stamp}.csv`
+  downloadCsvFile(filename, csv)
+  markWeeksExported(marked)
+  clearExportWeekSelection()
+}
 </script>
 
 <template>
   <template v-if="weekGroups.length">
     <div class="flex flex-col gap-3 pb-24">
+      <div
+        class="flex items-center justify-between gap-3 bg-input/30"
+        aria-label="Export"
+      >
+        <label
+          class="flex shrink-0 cursor-pointer select-none items-center gap-3"
+          @click.prevent="toggleSelectAllExportWeeks"
+        >
+          <input
+            type="checkbox"
+            class="peer sr-only"
+            :checked="allWeeksSelectedForExport"
+            tabindex="-1"
+            @click.prevent
+          />
+          <span
+            class="relative flex size-4 items-center justify-center rounded border border-slate-300 peer-checked:border-accent peer-checked:bg-accent"
+          >
+            <Check
+              v-show="allWeeksSelectedForExport"
+              class="h-[11px] w-[11px] text-[#F5F7FF]"
+              :stroke-width="3"
+              aria-hidden="true"
+            />
+          </span>
+          <span class="text-sm text-textc">{{ selectAllToggleLabel }}</span>
+        </label>
+        <button
+          type="button"
+          class="inline-flex shrink-0 items-center gap-2 rounded-lg border border-accent bg-accent px-2 py-1 text-sm font-semibold text-white transition hover:opacity-90"
+          @click="runExport"
+        >
+          <FileDown class="h-4 w-4" :stroke-width="2" aria-hidden="true" />
+          {{ exportButtonLabel }}
+        </button>
+      </div>
+
       <section
         v-for="group in weekGroups"
         :key="group.weekKey"
-        class="overflow-hidden rounded-[1.25rem] border border-inputb bg-card shadow-week"
-        :class="group.isCurrent ? 'border-accent/35 shadow-week-current' : ''"
+        class="overflow-hidden rounded-[1.25rem] border border-inputb bg-card shadow-week transition-opacity"
+        :class="[
+          group.isCurrent ? 'border-accent/35 shadow-week-current' : '',
+          (collapsed.has(group.weekKey) && isWeekExported(group.weekKey)) ? 'opacity-45' : 'opacity-100',
+        ]"
       >
-        <button
-          type="button"
-          class="flex w-full items-center justify-between gap-3 border-0 bg-transparent px-4 py-3.5 text-start active:bg-input"
-          @click="toggleWeek(group.weekKey)"
-        >
+        <div class="flex w-full items-center gap-3 px-3 py-3.5 sm:px-4">
+          <label class="flex shrink-0 cursor-pointer items-center" @click.stop>
+            <input
+              type="checkbox"
+              class="peer sr-only"
+              :checked="isWeekSelectedForExport(group.weekKey)"
+              :aria-label="t('export.selectWeek', { week: group.weekLabel })"
+              @change="
+                setWeekExportSelected(
+                  group.weekKey,
+                  ($event.target as HTMLInputElement).checked,
+                )
+              "
+            />
+            <span
+              class="relative flex size-4 items-center justify-center rounded border border-slate-300 peer-checked:border-accent peer-checked:bg-accent"
+            >
+              <Check
+                v-show="isWeekSelectedForExport(group.weekKey)"
+                class="h-[11px] w-[11px] text-[#F5F7FF]"
+                :stroke-width="3"
+                aria-hidden="true"
+              />
+            </span>
+          </label>
+          <button
+            type="button"
+            class="flex min-w-0 flex-1 items-center justify-between gap-3 border-0 bg-transparent text-start active:bg-input"
+            @click="toggleWeek(group.weekKey)"
+          >
           <div class="flex min-w-0 flex-col gap-0.5">
             <div class="flex flex-wrap items-center gap-2">
               <span class="text-[0.8125rem] font-bold uppercase tracking-wide text-accent">
@@ -202,14 +416,16 @@ const hasRowsOutsideHomeScope = computed(() =>
               aria-hidden="true"
             />
           </div>
-        </button>
+          </button>
+        </div>
         <div v-show="!collapsed.has(group.weekKey)" class="px-3 pb-4">
           <div class="flex flex-col gap-3">
             <TimeRow
               v-for="entry in group.entries"
               :key="entry.row.id"
               :row="entry.row"
-              @remove="store.removeRow(entry.idx)"
+              @edit="editEntry(entry.idx)"
+              @delete="requestDeleteEntry(entry.idx)"
             />
           </div>
         </div>
@@ -241,7 +457,17 @@ const hasRowsOutsideHomeScope = computed(() =>
   <EntryModal
     :open="showEntryModal"
     :row="modalRow"
+    :editing="entryModalEditing"
     @cancel="closeEntryModal"
     @save="saveEntry"
+  />
+
+  <ConfirmDialog
+    :danger="true"
+    :open="pendingDeleteIdx !== null"
+    :title="t('deleteConfirm.title')"
+    :message="t('deleteConfirm.message')"
+    @cancel="cancelDeleteEntry"
+    @confirm="confirmDeleteEntry"
   />
 </template>

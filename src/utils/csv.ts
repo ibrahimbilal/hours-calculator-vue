@@ -1,6 +1,29 @@
 import type { AddRowPayload } from '../types/calculator'
 import { durationMinutes, formatCurrency, hoursDecimal } from '../composables/useTimeCalc'
 import type { TimeEntry } from '../types/calculator'
+import { weekKeyFromDate } from './isoWeek'
+
+export type IsoWeekRowGroup = { weekKey: string; rows: TimeEntry[] }
+
+/** Group rows by ISO week key (e.g. 2026-W45), oldest week first. */
+export function groupRowsByIsoWeek(rows: TimeEntry[]): IsoWeekRowGroup[] {
+  const map = new Map<string, TimeEntry[]>()
+  for (const row of rows) {
+    const key = weekKeyFromDate(row.date || '')
+    const list = map.get(key) ?? []
+    list.push(row)
+    map.set(key, list)
+  }
+  const keys = [...map.keys()].sort((a, b) => {
+    if (a === 'no-date') return 1
+    if (b === 'no-date') return -1
+    const [yA, wA] = a.split('-W').map(Number)
+    const [yB, wB] = b.split('-W').map(Number)
+    if (yA !== yB) return yA - yB
+    return wA - wB
+  })
+  return keys.map((weekKey) => ({ weekKey, rows: map.get(weekKey)! }))
+}
 
 export function escapeCsvField(value: string | number): string {
   const s = String(value)
@@ -14,11 +37,15 @@ export function buildExportCsv(
   rows: TimeEntry[],
   hourlyRate: number,
   headerLabels: [string, string, string, string, string],
+  currencySymbol: string,
 ): string {
   const header = headerLabels.join(',')
   const lines = rows.map((row) => {
     const hours = (durationMinutes(row) / 60).toFixed(2)
-    const pay = formatCurrency(hoursDecimal(row) * (row.price ?? hourlyRate))
+    const pay = formatCurrency(
+      hoursDecimal(row) * (row.price ?? hourlyRate),
+      currencySymbol,
+    )
     return [
       escapeCsvField(row.date || ''),
       escapeCsvField(row.start || ''),
@@ -28,6 +55,16 @@ export function buildExportCsv(
     ].join(',')
   })
   return [header, ...lines].join('\n')
+}
+
+export function downloadCsvFile(filename: string, csv: string): void {
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 /** RFC 4180-style CSV parse (comma-separated, quoted fields). */

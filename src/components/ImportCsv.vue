@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { FileDown, FileUp, Upload } from '@lucide/vue'
+import { FileUp, Upload } from '@lucide/vue'
 import { useCalculatorStore } from '../stores/calculator'
-import { hoursDecimal, formatCurrency } from '../composables/useTimeCalc'
-import { buildExportCsv, entriesFromCsv } from '../utils/csv'
-import { DEMO_CSV_CONTENT, DEMO_ENTRIES, DEMO_HOURLY_RATE } from '../data/demoEntries'
+import { hoursDecimal, useTimeCalc } from '../composables/useTimeCalc'
+import { entriesFromCsv } from '../utils/csv'
 
 const emit = defineEmits<{ imported: [] }>()
 
 const { t } = useI18n()
 const store = useCalculatorStore()
+const { currency } = useTimeCalc()
 
 type ImportMode = 'merge' | 'replace'
 
@@ -88,11 +88,6 @@ function openFilePicker() {
   fileInput.value?.click()
 }
 
-function loadDemoPreview() {
-  fileName.value = t('import.demoFileName')
-  parseText(DEMO_CSV_CONTENT)
-}
-
 function applyImport() {
   if (!preview.value?.entries.length) {
     status.value = 'error'
@@ -105,31 +100,6 @@ function applyImport() {
   emit('imported')
 }
 
-function loadDemoIntoTracker() {
-  store.hourlyRate = DEMO_HOURLY_RATE
-  const count = store.importEntries(DEMO_ENTRIES, 'replace')
-  status.value = 'success'
-  statusDetail.value = t('import.demoLoaded', { n: count, rate: DEMO_HOURLY_RATE })
-  emit('imported')
-}
-
-function exportCsv() {
-  const csv = buildExportCsv(store.rows, store.hourlyRate, [
-    t('csv.date'),
-    t('csv.start'),
-    t('csv.end'),
-    t('csv.duration'),
-    t('csv.pay'),
-  ])
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  const date = new Date().toISOString().slice(0, 10)
-  a.href = url
-  a.download = `hours-${date}.csv`
-  a.click()
-  URL.revokeObjectURL(url)
-}
 </script>
 
 <template>
@@ -138,43 +108,6 @@ function exportCsv() {
       <h2 class="mb-1 text-lg font-semibold text-textc">{{ t('import.title') }}</h2>
       <p class="text-sm text-muted">{{ t('import.description') }}</p>
       <p class="mt-2 text-xs text-muted">{{ t('import.formatHint') }}</p>
-    </div>
-
-    <section class="rounded-xl border border-inputb bg-input/40 p-4">
-      <h3 class="mb-1 text-sm font-semibold text-textc">{{ t('import.exportSection') }}</h3>
-      <p class="mb-3 text-xs text-muted">{{ t('import.exportHint') }}</p>
-      <button
-        type="button"
-        class="inline-flex items-center gap-2 rounded-lg border border-yellow-400 bg-yellow-400 px-4 py-2 text-sm font-semibold text-yellow-950 transition hover:opacity-90"
-        @click="exportCsv"
-      >
-        <FileDown class="h-4 w-4" :stroke-width="2" aria-hidden="true" />
-        {{ t('import.exportCsv') }}
-      </button>
-    </section>
-
-    <div class="flex flex-wrap gap-2">
-      <a
-        href="/samples/hours-sample.csv"
-        download="hours-sample.csv"
-        class="rounded-lg border border-accent px-4 py-2 text-sm text-accent transition hover:bg-accent hover:text-white"
-      >
-        {{ t('import.downloadSample') }}
-      </a>
-      <button
-        type="button"
-        class="rounded-lg border border-inputb px-4 py-2 text-sm transition hover:border-accent"
-        @click="loadDemoIntoTracker"
-      >
-        {{ t('import.loadDemo') }}
-      </button>
-      <button
-        type="button"
-        class="rounded-lg border border-inputb px-4 py-2 text-sm transition hover:border-accent"
-        @click="loadDemoPreview"
-      >
-        {{ t('import.previewDemo') }}
-      </button>
     </div>
 
     <div
@@ -258,7 +191,7 @@ function exportCsv() {
                 </td>
                 <td class="px-3 py-2">
                   <template v-if="typeof row.price === 'number'">
-                    {{ formatCurrency(hoursDecimal(row) * row.price) }}
+                    {{ currency(hoursDecimal(row) * row.price) }}
                   </template>
                   <template v-else>—</template>
                 </td>

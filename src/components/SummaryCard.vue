@@ -55,10 +55,10 @@ function togglePayVisible() {
   >
     <div class="flex items-stretch gap-4">
       <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span class="text-[0.6875rem] font-semibold uppercase tracking-wider text-muted">
+        <span class="text-xs font-semibold uppercase tracking-wider text-muted h-6 flex items-center">
           {{ t('summary.total') }}
         </span>
-        <span class="text-[1.75rem] font-bold leading-tight text-accent">
+        <span class="text-xl font-bold leading-tight text-accent">
           {{ formatHM(totalMinutes) }}
         </span>
         <span class="text-xs text-muted">
@@ -68,7 +68,7 @@ function togglePayVisible() {
       <div class="w-px shrink-0 bg-inputb" aria-hidden="true" />
       <div class="flex min-w-0 flex-1 flex-col gap-0.5">
         <div class="flex items-center justify-between gap-1">
-          <span class="text-[0.6875rem] font-semibold uppercase tracking-wider text-muted">
+          <span class="text-xs font-semibold uppercase tracking-wider text-muted">
             {{ t('summary.totalPay') }}
           </span>
           <button
@@ -83,10 +83,10 @@ function togglePayVisible() {
           </button>
         </div>
         <span
-          class="text-[1.35rem] font-bold leading-tight"
+          class="text-xl font-bold leading-tight"
           :class="showPay ? 'text-accent' : 'tracking-widest text-muted'"
         >
-          {{ showPay ? currency(totalPay) : '••••' }}
+          {{ showPay ? currency(totalPay) : '••••••' }}
         </span>
       </div>
     </div>

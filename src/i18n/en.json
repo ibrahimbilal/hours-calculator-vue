@@ -2,7 +2,7 @@
   "nav": {
     "tracker": "Time Tracker",
     "stats": "Statistics",
-    "import": "Import & export"
+    "import": "Import CSV"
   },
   "stats": {
     "groupBy": "Group by",
@@ -68,18 +68,35 @@
     "signedInWithEmail": "Signed in with email",
     "nameFromGoogle": "Filled from your Google account. You can edit it here if needed.",
     "workDefaults": "Defaults",
+    "currency": "Currency symbol",
+    "currencyHint": "Used for pay totals, row amounts, stats, and CSV export.",
+    "currencies": {
+      "EUR": "Euro",
+      "USD": "US dollar",
+      "GBP": "Pound sterling",
+      "CHF": "Swiss franc",
+      "MAD": "Moroccan dirham",
+      "AED": "UAE dirham",
+      "SAR": "Saudi riyal"
+    },
     "data": "Your data"
   },
   "actions": {
     "clearAll": "Clear all",
     "addEntry": "Add entry",
+    "edit": "Edit",
     "delete": "Delete",
     "save": "Save entry",
     "cancel": "Cancel"
   },
   "entryModal": {
     "title": "Add entry",
+    "editTitle": "Edit entry",
     "fillTimes": "Enter start and end time to save."
+  },
+  "deleteConfirm": {
+    "title": "Delete entry?",
+    "message": "This entry will be permanently removed."
   },
   "row": {
     "date": "Date",
@@ -102,6 +119,13 @@
     "labelWithYear": "Week {n}, {y}",
     "noDate": "No date",
     "current": "This week"
+  },
+  "export": {
+    "selectAllWeeks": "Select all",
+    "unselectAllWeeks": "Unselect all",
+    "selectWeek": "Select {week} for export",
+    "all": "Export all",
+    "selected": "Export selected"
   },
   "empty": {
     "message": "No entries yet. Start by adding your first time period.",
@@ -172,11 +196,8 @@
     }
   },
   "import": {
-    "title": "Import & export",
-    "exportSection": "Export",
-    "exportCsv": "Download hours as CSV",
-    "exportHint": "Save your current entries to a spreadsheet file.",
-    "description": "Upload a CSV file with your time entries. Use the same columns as download: date, start, end (duration and pay are optional).",
+    "title": "Import CSV",
+    "description": "Upload a CSV file with your time entries. Use the same columns as export: date, start, end (duration and pay are optional).",
     "formatHint": "Date format: YYYY-MM-DD. Times: HH:MM (24h). Overnight shifts are supported.",
     "chooseFile": "Choose CSV file",
     "dropOrClick": "Drag & drop a CSV file here, or tap to browse",
@@ -189,11 +210,6 @@
     "previewTruncated": "Showing {n} of {total} rows.",
     "importButton": "Import into tracker",
     "success": "Imported {n} entries.",
-    "downloadSample": "Download sample CSV",
-    "loadDemo": "Load demo data into tracker",
-    "previewDemo": "Preview demo CSV",
-    "demoLoaded": "Demo data loaded ({n} entries across multiple weeks, rate {rate}).",
-    "demoFileName": "hours-sample.csv",
     "errors": {
       "empty": "The file is empty.",
       "noValidRows": "No valid rows found. Each row needs a date (YYYY-MM-DD), start, and end time.",
