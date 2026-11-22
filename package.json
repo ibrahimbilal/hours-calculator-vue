@@ -15,16 +15,22 @@
     "firebase": "^13.4.0",
     "pinia": "^2.3.0",
     "vue": "^3.5.13",
-    "vue-i18n": "^9.14.5"
+    "vue-i18n": "^11.4.14"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "1.13.6",
+    "minimatch": "11.0.1",
+    "glob": "14.0.2",
+    "@intlify/core-base": "11.4.14"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.1",
+    "@vitejs/plugin-vue": "^6.0.11",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
     "typescript": "~5.7.2",
-    "vite": "^6.0.3",
-    "vite-plugin-pwa": "^0.21.1",
+    "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
     "vue-tsc": "^2.2.0"
   }
 }
