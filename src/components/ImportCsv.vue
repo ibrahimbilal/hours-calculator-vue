@@ -3,13 +3,14 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { FileUp, Upload } from '@lucide/vue'
 import { useCalculatorStore } from '../stores/calculator'
+import { hoursDecimal, useTimeCalc } from '../composables/useTimeCalc'
 import { entriesFromCsv } from '../utils/csv'
-import { DEMO_CSV_CONTENT, DEMO_ENTRIES, DEMO_HOURLY_RATE } from '../data/demoEntries'
 
 const emit = defineEmits<{ imported: [] }>()
 
 const { t } = useI18n()
 const store = useCalculatorStore()
+const { currency } = useTimeCalc()
 
 type ImportMode = 'merge' | 'replace'
 
@@ -24,6 +25,9 @@ const statusDetail = ref('')
 const previewRows = computed(() => preview.value?.entries.slice(0, 8) ?? [])
 const rowCount = computed(() => preview.value?.entries.length ?? 0)
 const parseErrors = computed(() => preview.value?.errors ?? [])
+const previewHasPay = computed(() =>
+  preview.value?.entries.some((row) => typeof row.price === 'number') ?? false,
+)
 
 let dragDepth = 0
 
@@ -84,11 +88,6 @@ function openFilePicker() {
   fileInput.value?.click()
 }
 
-function loadDemoPreview() {
-  fileName.value = t('import.demoFileName')
-  parseText(DEMO_CSV_CONTENT)
-}
-
 function applyImport() {
   if (!preview.value?.entries.length) {
     status.value = 'error'
@@ -101,13 +100,6 @@ function applyImport() {
   emit('imported')
 }
 
-function loadDemoIntoTracker() {
-  store.hourlyRate = DEMO_HOURLY_RATE
-  const count = store.importEntries(DEMO_ENTRIES, 'replace')
-  status.value = 'success'
-  statusDetail.value = t('import.demoLoaded', { n: count, rate: DEMO_HOURLY_RATE })
-  emit('imported')
-}
 </script>
 
 <template>
@@ -116,30 +108,6 @@ function loadDemoIntoTracker() {
       <h2 class="mb-1 text-lg font-semibold text-textc">{{ t('import.title') }}</h2>
       <p class="text-sm text-muted">{{ t('import.description') }}</p>
       <p class="mt-2 text-xs text-muted">{{ t('import.formatHint') }}</p>
-    </div>
-
-    <div class="flex flex-wrap gap-2">
-      <a
-        href="/samples/hours-sample.csv"
-        download="hours-sample.csv"
-        class="rounded-lg border border-accent px-4 py-2 text-sm text-accent transition hover:bg-accent hover:text-white"
-      >
-        {{ t('import.downloadSample') }}
-      </a>
-      <button
-        type="button"
-        class="rounded-lg border border-inputb px-4 py-2 text-sm transition hover:border-accent"
-        @click="loadDemoIntoTracker"
-      >
-        {{ t('import.loadDemo') }}
-      </button>
-      <button
-        type="button"
-        class="rounded-lg border border-inputb px-4 py-2 text-sm transition hover:border-accent"
-        @click="loadDemoPreview"
-      >
-        {{ t('import.previewDemo') }}
-      </button>
     </div>
 
     <div
@@ -205,6 +173,8 @@ function loadDemoIntoTracker() {
               <th class="px-3 py-2 text-start">{{ t('csv.date') }}</th>
               <th class="px-3 py-2 text-start">{{ t('csv.start') }}</th>
               <th class="px-3 py-2 text-start">{{ t('csv.end') }}</th>
+              <th v-if="previewHasPay" class="px-3 py-2 text-start">{{ t('csv.duration') }}</th>
+              <th v-if="previewHasPay" class="px-3 py-2 text-start">{{ t('csv.pay') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -212,6 +182,20 @@ function loadDemoIntoTracker() {
               <td class="px-3 py-2">{{ row.date }}</td>
               <td class="px-3 py-2">{{ row.start }}</td>
               <td class="px-3 py-2">{{ row.end }}</td>
+              <template v-if="previewHasPay">
+                <td class="px-3 py-2">
+                  <template v-if="typeof row.price === 'number'">
+                    {{ hoursDecimal(row).toFixed(2) }}
+                  </template>
+                  <template v-else>—</template>
+                </td>
+                <td class="px-3 py-2">
+                  <template v-if="typeof row.price === 'number'">
+                    {{ currency(hoursDecimal(row) * row.price) }}
+                  </template>
+                  <template v-else>—</template>
+                </td>
+              </template>
             </tr>
           </tbody>
         </table>

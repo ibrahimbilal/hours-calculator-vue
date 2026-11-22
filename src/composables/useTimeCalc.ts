@@ -1,5 +1,7 @@
 import { useI18n } from 'vue-i18n'
 import type { TimeEntry } from '../types/calculator'
+import { useCalculatorStore } from '../stores/calculator'
+import { formatMoney } from '../utils/currency'
 
 type TimeLike = Pick<TimeEntry, 'start' | 'end'>
 
@@ -28,13 +30,13 @@ export function formatDuration(mins: number, hLabel = 'h', mLabel = 'm'): string
   return `${hours}${hLabel} ${minutes}${mLabel}`
 }
 
-export function formatCurrency(value: number): string {
-  if (!value || Number.isNaN(value)) return '0.00'
-  return Number(value).toFixed(2)
+export function formatCurrency(value: number, symbol = ''): string {
+  return formatMoney(value, symbol)
 }
 
 export function useTimeCalc() {
   const { t } = useI18n()
+  const store = useCalculatorStore()
 
   function rowWarning(row: TimeLike): string {
     const start = parseTimeToMinutes(row.start)
@@ -50,11 +52,15 @@ export function useTimeCalc() {
     return formatDuration(mins, t('time.h'), t('time.m'))
   }
 
+  function currency(value: number): string {
+    return formatMoney(value, store.currencySymbol)
+  }
+
   return {
     durationMinutes,
     hoursDecimal,
     formatHM,
-    currency: formatCurrency,
+    currency,
     rowWarning,
   }
 }

@@ -45,21 +45,58 @@
     "hourlyRateHint": "Wordt toegepast op alle tijdsduren om het totale loon te berekenen. Laat op nul staan als niet nodig.",
     "total": "Totaal",
     "totalPay": "Totaal loon",
-    "autoSave": "Automatisch opgeslagen in browser (LocalStorage).",
-    "showDetails": "Tarief & acties",
-    "hideDetails": "Details verbergen"
+    "showPayAmount": "Totaal loon tonen",
+    "hidePayAmount": "Totaal loon verbergen",
+    "autoSaveLocal": "Opgeslagen op dit apparaat. Log in om te synchroniseren.",
+    "autoSaveCloud": "Gesynchroniseerd met je account (Firebase).",
+    "autoSaveCloudSaving": "Opslaan in de cloud…",
+    "autoSaveCloudError": "Cloudopslag mislukt. Opnieuw proberen bij je volgende wijziging."
+  },
+  "homeScope": {
+    "label": "Startweergave",
+    "currentMonth": "Deze maand",
+    "all": "Alle datums",
+    "summaryCurrentMonth": "Totalen alleen voor deze maand",
+    "emptyCurrentMonth": "Nog geen invoeren deze maand.",
+    "switchToAllHint": "Kies in het menu hierboven “Alle datums” om oudere invoeren te zien."
+  },
+  "settings": {
+    "title": "Instellingen",
+    "back": "Terug",
+    "account": "Account",
+    "signedInWithGoogle": "Ingelogd met Google",
+    "signedInWithEmail": "Ingelogd met e-mail",
+    "nameFromGoogle": "Ingevuld vanuit je Google-account. Je kunt het hier aanpassen.",
+    "workDefaults": "Standaardwaarden",
+    "currency": "Valutasymbool",
+    "currencyHint": "Voor loon totalen, regelbedragen, statistieken en CSV-export.",
+    "currencies": {
+      "EUR": "Euro",
+      "USD": "Amerikaanse dollar",
+      "GBP": "Pond sterling",
+      "CHF": "Zwitserse frank",
+      "MAD": "Marokkaanse dirham",
+      "AED": "VAE-dirham",
+      "SAR": "Saoedi-rijal"
+    },
+    "data": "Jouw gegevens"
   },
   "actions": {
-    "exportCSV": "Exporteer CSV",
     "clearAll": "Alles wissen",
     "addEntry": "Invoer toevoegen",
+    "edit": "Bewerken",
     "delete": "Verwijderen",
     "save": "Invoer opslaan",
     "cancel": "Annuleren"
   },
   "entryModal": {
     "title": "Invoer toevoegen",
+    "editTitle": "Invoer bewerken",
     "fillTimes": "Vul begin- en eindtijd in om op te slaan."
+  },
+  "deleteConfirm": {
+    "title": "Invoer verwijderen?",
+    "message": "Deze invoer wordt permanent verwijderd."
   },
   "row": {
     "date": "Datum",
@@ -83,6 +120,13 @@
     "noDate": "Geen datum",
     "current": "Deze week"
   },
+  "export": {
+    "selectAllWeeks": "Alles selecteren",
+    "unselectAllWeeks": "Alles deselecteren",
+    "selectWeek": "Selecteer {week} voor export",
+    "all": "Alles exporteren",
+    "selected": "Selectie exporteren"
+  },
   "empty": {
     "message": "Nog geen invoeren. Begin met het toevoegen van je eerste tijdsperiode.",
     "hint": "'Klik op \"Invoer toevoegen\" om een nieuwe rij toe te voegen. U kunt elke rij afzonderlijk verwijderen.'",
@@ -101,6 +145,56 @@
     "duration": "Duur (u)",
     "pay": "Loon"
   },
+  "auth": {
+    "signIn": "Inloggen",
+    "signUp": "Registreren",
+    "signOut": "Uitloggen",
+    "signedIn": "Ingelogd",
+    "loading": "Sessie controleren…",
+    "pageTitle": "Log in om verder te gaan",
+    "pageSubtitle": "Je uren worden veilig in je account opgeslagen.",
+    "signInRequired": "Inloggen is verplicht om je uren te bekijken en te bewerken.",
+    "signOutConfirm": "Uitloggen? Je gegevens worden verborgen tot je weer inlogt.",
+    "dialogTitle": "Cloudback-up",
+    "dialogHint": "Log in om je uren op een ander apparaat te herstellen of na het wissen van de browser.",
+    "firstName": "Voornaam",
+    "lastName": "Achternaam",
+    "email": "E-mail",
+    "password": "Wachtwoord",
+    "showPassword": "Wachtwoord tonen",
+    "hidePassword": "Wachtwoord verbergen",
+    "google": "Doorgaan met Google",
+    "passwordStrength": {
+      "label": "Wachtwoordsterkte",
+      "weak": "Zwak",
+      "fair": "Matig",
+      "good": "Goed",
+      "strong": "Sterk"
+    },
+    "passwordRules": {
+      "title": "Wachtwoordvereisten",
+      "minLength": "Minimaal 8 tekens",
+      "lower": "Eén kleine letter",
+      "upper": "Eén hoofdletter",
+      "number": "Eén cijfer",
+      "special": "Eén speciaal teken (!@#$…)"
+    },
+    "errors": {
+      "default": "Inloggen mislukt. Controleer je gegevens.",
+      "weakPassword": "Gebruik minimaal 6 tekens voor het wachtwoord.",
+      "passwordRules": "Voldoe aan alle wachtwoordvereisten hieronder.",
+      "firstNameRequired": "Vul je voornaam in.",
+      "auth/invalid-email": "Ongeldig e-mailadres.",
+      "auth/user-disabled": "Dit account is uitgeschakeld.",
+      "auth/user-not-found": "Geen account met dit e-mailadres.",
+      "auth/wrong-password": "Onjuist wachtwoord.",
+      "auth/invalid-credential": "Onjuiste e-mail of wachtwoord.",
+      "auth/email-already-in-use": "Dit e-mailadres is al geregistreerd.",
+      "auth/too-many-requests": "Te veel pogingen. Probeer later opnieuw.",
+      "auth/popup-closed-by-user": "Inlogvenster gesloten.",
+      "auth/popup-blocked": "Pop-up geblokkeerd. Sta pop-ups toe en probeer opnieuw."
+    }
+  },
   "import": {
     "title": "CSV importeren",
     "description": "Upload een CSV met je uren. Dezelfde kolommen als bij export: datum, start, einde (duur en loon zijn optioneel).",
@@ -116,11 +210,6 @@
     "previewTruncated": "Toont {n} van {total} rijen.",
     "importButton": "Importeren naar tracker",
     "success": "{n} invoeren geïmporteerd.",
-    "downloadSample": "Voorbeeld-CSV downloaden",
-    "loadDemo": "Demodata in tracker laden",
-    "previewDemo": "Demo-CSV bekijken",
-    "demoLoaded": "Demodata geladen ({n} invoeren over meerdere weken, tarief {rate}).",
-    "demoFileName": "hours-sample.csv",
     "errors": {
       "empty": "Het bestand is leeg.",
       "noValidRows": "Geen geldige rijen. Elke rij heeft datum (JJJJ-MM-DD), start en eindtijd nodig.",

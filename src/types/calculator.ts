@@ -16,9 +16,18 @@ export interface AddRowPayload {
   price?: number
 }
 
+import type { HomeDateScope } from '../utils/dateScope'
+import type { CurrencyCode } from '../utils/currency'
+
 export interface PersistedData {
   rows?: Array<Partial<TimeEntry> & { id?: string }>
   hourlyRate?: number
+  homeDateScope?: HomeDateScope
+  currencyCode?: CurrencyCode
+  /** ISO week key → content signature of last export (e.g. 2026-W45). */
+  exportedWeekSignatures?: Record<string, string>
+  firstName?: string
+  lastName?: string
 }
 
 export type LocaleCode = 'ar' | 'en' | 'nl'
