@@ -40,6 +40,21 @@
     "title": "Uren Calculator",
     "subtitle": "Voer begin- en eindtijd in voor elke invoer. De calculator verwerkt automatisch nachtdiensten (bijv. 22:00 → 02:00 = 4 uur)."
   },
+  "home": {
+    "title": "Start",
+    "tagline": "Slimme urenregistratie voor werk, loon en statistieken.",
+    "description": "Uren Calculator helpt je werktijden vast te leggen, nachtdiensten te verwerken, loon te schatten, grafieken te bekijken en CSV te importeren of exporteren. Engels, Nederlands en Arabisch; installeerbaar als PWA.",
+    "featuresTitle": "Wat je kunt doen",
+    "features": [
+      "Dagelijkse tijdsregistratie met automatische duur en nachtdiensten.",
+      "Weektotalen, loonschattingen en gedetailleerde statistieken.",
+      "CSV importeren en exporteren voor je eigen administratie.",
+      "Veilig synchroniseren tussen apparaten met een account.",
+      "Offline gebruiken; gegevens blijven lokaal tot je inlogt voor back-up."
+    ],
+    "signInNote": "Je kunt deze pagina lezen zonder in te loggen. Open de app wanneer je uren wilt bijhouden.",
+    "openApp": "Open de app"
+  },
   "summary": {
     "hourlyRate": "Uurtarief (optionele valuta)",
     "hourlyRateHint": "Wordt toegepast op alle tijdsduren om het totale loon te berekenen. Laat op nul staan als niet nodig.",

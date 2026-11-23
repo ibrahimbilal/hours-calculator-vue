@@ -81,7 +81,12 @@ function googleSignIn() {
     <header
       class="flex items-center justify-between gap-3 border-b border-inputb bg-sky-50/95 px-4 py-3 backdrop-blur-sm ps-[max(1rem,env(safe-area-inset-left))] pe-[max(1rem,env(safe-area-inset-right))]"
     >
-      <h1 class="text-lg font-semibold text-accent">{{ t('app.title') }}</h1>
+      <div class="m-0 min-w-0 flex items-center gap-2 flex-1">
+        <img src="/icons/favicon.png" :alt="t('app.title')" class="size-10 rounded-full" width="40" height="40" />
+        <div class="m-0 min-w-0 flex-1 truncate text-lg font-semibold text-accent">
+          {{ t('app.title') }}
+        </div>
+      </div>
       <LangSwitcher />
     </header>
 
@@ -202,6 +207,10 @@ function googleSignIn() {
 
       <p class="mt-4 text-center text-[0.75rem] leading-relaxed text-muted">
         {{ t('auth.signInRequired') }}
+        ·
+        <a href="/home" class="text-accent hover:underline">{{ t('home.title') }}</a>
+        ·
+        <a href="/privacy" class="text-accent hover:underline">{{ t('privacy.title') }}</a>
       </p>
     </main>
   </div>

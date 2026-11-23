@@ -40,6 +40,21 @@
     "title": "Hours Calculator",
     "subtitle": "Enter start and end time for each entry. The calculator automatically handles overnight shifts (e.g. 22:00 → 02:00 = 4 hours)."
   },
+  "home": {
+    "title": "Home",
+    "tagline": "Smart time tracking for work hours, pay, and statistics.",
+    "description": "Hours Calculator helps you log start and end times, handle overnight shifts, estimate pay from an hourly rate, review charts and summaries, and import or export CSV files. The app supports English, Dutch, and Arabic and works as an installable PWA.",
+    "featuresTitle": "What you can do",
+    "features": [
+      "Track daily time entries with automatic duration and overnight shift handling.",
+      "See weekly totals, pay estimates, and detailed statistics.",
+      "Import and export CSV files compatible with your records.",
+      "Sync securely to your account across phones and desktops when signed in.",
+      "Use offline on this device; data is stored locally until you sign in to back up."
+    ],
+    "signInNote": "You can read this page without signing in. Open the app when you are ready to track your hours.",
+    "openApp": "Open the app"
+  },
   "summary": {
     "hourlyRate": "Hourly rate (optional currency)",
     "hourlyRateHint": "Applied to all durations to calculate total pay. Leave as zero if not needed.",
@@ -215,6 +230,121 @@
       "noValidRows": "No valid rows found. Each row needs a date (YYYY-MM-DD), start, and end time.",
       "invalidRow": "Row {n}: invalid date or time — skipped.",
       "notCsv": "Please drop a .csv file."
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "updated": "Hours Calculator · Last updated: November 23, 2025",
+    "back": "← Back to Hours Calculator",
+    "introLead": "Hours Calculator (“the app”, “we”) is a web application at",
+    "introRest": "that helps you track working hours, calculate durations (including overnight shifts), estimate pay, view statistics, and import or export CSV files. This privacy policy explains what information we collect, how we use it, and your choices.",
+    "contactLead": "Questions about this privacy policy or your data:",
+    "intro": {
+      "title": "Introduction"
+    },
+    "collect": {
+      "title": "Information we collect",
+      "paragraphs": ["Depending on how you use the app, we may process the following data:"],
+      "bullets": [
+        {
+          "label": "Account information",
+          "text": "(when you sign in): email address, display name, first and last name (if you provide them), and authentication identifiers from Firebase Authentication."
+        },
+        {
+          "label": "Google Sign-In",
+          "text": "(optional): if you choose “Continue with Google”, Google provides basic profile information (such as name and email) according to your Google account settings and our OAuth scope. We do not receive your Google password."
+        },
+        {
+          "label": "Time-tracking data",
+          "text": ": dates, start and end times, optional per-entry pay amounts, hourly rate, currency preference, date-range filters, and related entries you create in the app."
+        },
+        {
+          "label": "Technical data on your device",
+          "text": ": data stored locally in your browser (for example localStorage) so the app can work offline and remember your settings before or without signing in."
+        }
+      ],
+      "paragraphsAfter": [
+        "We do not intentionally collect sensitive categories of personal data (such as health or government ID numbers). Please do not enter information you do not want stored with your account or on your device."
+      ]
+    },
+    "use": {
+      "title": "How we use your information",
+      "bullets": [
+        "Provide core functionality: tracking hours, totals, statistics, and CSV import/export.",
+        "Authenticate you and sync your data across devices when you use a signed-in account.",
+        "Maintain security, prevent abuse, and improve reliability of the service.",
+        "Respond to support or privacy requests you send us."
+      ],
+      "paragraphs": [
+        "We do not sell your personal information. We do not use your data for third-party advertising."
+      ]
+    },
+    "storage": {
+      "title": "Where data is stored",
+      "bullets": [
+        {
+          "label": "On your device",
+          "text": ": when you use the app without signing in, or before sync completes, entries and preferences may be kept in browser local storage on that device only."
+        },
+        {
+          "label": "Cloud storage",
+          "text": " (signed-in users): account and time-entry data are stored in Google Firebase (Authentication and Cloud Firestore) in secured databases tied to your user ID. Access rules require you to be signed in as that user to read or write your data."
+        }
+      ]
+    },
+    "thirdParty": {
+      "title": "Third-party services",
+      "paragraphs": [
+        "We rely on the following service providers to operate the app:",
+        "These providers process data on our behalf under their terms and only as needed to deliver the service."
+      ],
+      "bullets": [
+        {
+          "label": "Google Firebase",
+          "text": " — authentication, database, and hosting infrastructure. Privacy policy: ",
+          "href": "https://firebase.google.com/support/privacy"
+        },
+        {
+          "label": "Google Sign-In",
+          "text": " — optional OAuth login. Privacy policy: ",
+          "href": "https://policies.google.com/privacy"
+        }
+      ]
+    },
+    "cookies": {
+      "title": "Cookies and local storage",
+      "paragraphs": [
+        "The app uses browser local storage and similar technologies to remember your language, entries, and preferences. Firebase Authentication may use cookies or local session storage to keep you signed in. You can clear site data in your browser settings; doing so may sign you out and remove unsynced local entries."
+      ]
+    },
+    "retention": {
+      "title": "Data retention",
+      "paragraphs": [
+        "We retain account and synced time-entry data for as long as your account exists or as needed to provide the service. If you delete your account or ask us to delete your data, we will remove or anonymize it within a reasonable time, subject to legal or backup retention requirements."
+      ]
+    },
+    "rights": {
+      "title": "Your rights and choices",
+      "bullets": [
+        "You may use export features to download your time entries as CSV.",
+        "You may stop using the app and clear browser data for this site at any time.",
+        "You may request access, correction, or deletion of account data by contacting us (see below). If you use Google Sign-In, you can also manage connected apps in your Google account."
+      ]
+    },
+    "children": {
+      "title": "Children",
+      "paragraphs": [
+        "The app is not directed at children under 13 (or the minimum age in your country). We do not knowingly collect personal information from children."
+      ]
+    },
+    "changes": {
+      "title": "Changes",
+      "paragraphs": [
+        "We may update this policy from time to time. We will revise the “Last updated” date above. Continued use of the app after changes means you accept the updated policy."
+      ]
+    },
+    "contact": {
+      "title": "Contact"
     }
   }
 }

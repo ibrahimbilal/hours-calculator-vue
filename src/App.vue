@@ -11,16 +11,21 @@ import UserSettings from './components/UserSettings.vue'
 import LangSwitcher from './components/LangSwitcher.vue'
 import AuthMenu from './components/AuthMenu.vue'
 import SignInPage from './components/SignInPage.vue'
+import PrivacyPolicyPage from './components/PrivacyPolicyPage.vue'
+import HomePage from './components/HomePage.vue'
 import BottomNav from './components/BottomNav.vue'
+import { useAppPath } from './composables/useAppPath'
 
 const { t } = useI18n()
 const auth = useAuthStore()
 const tab = ref('tracker')
 const tabBeforeSettings = ref('tracker')
 
+const { isPrivacyPage, isHomePage, isPublicPage } = useAppPath()
+
 const requiresAuth = isFirebaseConfigured()
 const showApp = computed(() => !requiresAuth || Boolean(auth.user))
-const booting = computed(() => requiresAuth && !auth.ready)
+const booting = computed(() => requiresAuth && !auth.ready && !isPublicPage.value)
 
 const headerTitle = computed(() =>
   tab.value === 'settings' ? t('settings.title') : t('app.title'),
@@ -43,8 +48,12 @@ function onNavChange(next: string) {
 </script>
 
 <template>
+  <PrivacyPolicyPage v-if="isPrivacyPage" />
+
+  <HomePage v-else-if="isHomePage" />
+
   <div
-    v-if="booting"
+    v-else-if="booting"
     class="flex min-h-dvh items-center justify-center bg-gradient-to-b from-sky-50 via-[#e8f4f8] to-slate-50 text-sm text-muted"
   >
     {{ t('auth.loading') }}
