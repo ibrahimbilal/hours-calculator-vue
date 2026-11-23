@@ -69,7 +69,7 @@ function onNavChange(next: string) {
       class="pwa-titlebar sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-inputb bg-sky-50/95 py-3 backdrop-blur-sm ps-[max(1rem,env(safe-area-inset-left))] pe-[max(1rem,env(safe-area-inset-right))]"
       role="banner"
     >
-        <div
+      <div
         class="m-0 min-w-0 flex items-center gap-2 flex-1"
       >
         <img src="/icons/favicon.png" :alt="headerTitle" class="size-10 rounded-full" width="40" height="40" />
